@@ -25,7 +25,7 @@ Source of truth: the owner's master build prompt (sections 0–16). This file tr
 
 - [x] **Phase 0 – Plan**: PLAN.md, ARCHITECTURE.md, tool check, git init.
 - [~] **Phase 1 – Foundation** (done except GitHub repo: `gh` missing; see report): monorepo scripts (`npm run setup`, `npm run dev`, links table), DB + migrations, auth, design tokens, brand SVGs, app shell, CI, GitHub repo (needs `gh`).
-- [ ] **Phase 2 – Marketing site**: Home, Pricing, features hub + pages, blog, legal, SEO.
+- [~] **Phase 2 – Marketing site** (built and measured; Lighthouse 90 target not yet met): Home, Pricing, features hub + pages, blog, legal, SEO.
 - [ ] **Phase 3 – Core pipeline**: queue, storage, LLM wrapper + prompts, TTS, STT, asset providers, Scene JSON, FFmpeg renderer (Fast), SSE.
 - [ ] **Phase 4 – Styles + tools**: 6 styles, standalone tools, Auto Clipping.
 - [ ] **Phase 5 – Editor**: preview, timeline, panels, captions, autosave, mobile layout, Pro/Cinematic.
@@ -71,3 +71,11 @@ Built and run: `npm run setup` and `npm run dev` on Windows (links table prints,
 Verified: 16 pytest tests green (auth flow, lockout, referral, credits reserve/settle/refund, concurrent claim, retries, no-key error); web type-check clean; all pages return 200 through the Next proxy; signup/me/dev-mail confirmed via curl.
 Not yet done: GitHub repo (needs `gh`), PNG/OG brand assets, shadcn/Framer/TanStack wiring, browser screenshots at 360/1280 px, Playwright, Docker files, LLM path tested against a live key.
 Deviation: the first-run key page is only open before any user exists; because seed creates demo users, the owner signs in as admin first. Revisit in Phase 8.
+
+### Phase 2 report (2026-11-06)
+
+Built: home (hero animation, steps, styles, tools, Clue Score teaser, DB-driven reviews with empty state, 16-question FAQ + JSON-LD), pricing (annual default 50% off, NGN/USD toggle with NG locale detect, plans from API with fallback), features hub + 23 pages from `content/features.json` (20 features + 3 fair comparisons, no third-party names), blog (6 original posts, 1,039-1,197 words each, no invented statistics, RSS), about, contact (saves a ticket and emails admin), privacy/terms/refund, 404, sitemap, robots, skip link, Organization/FAQ/Breadcrumb/Article JSON-LD. API: `/api/contact`, `/api/reviews`, `/api/plans`; migration 0002; 18 tests pass.
+Verified by running: all 16 marketing routes return 200 (unknown route 404), contact form saves and mails, `next build` passes with type-check, first-load JS 103-108 kB.
+Lighthouse mobile (production build, local Chrome): raw defaults (4x CPU slowdown) home 84 / pricing 65; accessibility 96/100, SEO 100/92 (canonical fixed afterwards with metadataBase, not re-measured). This laptop (i5-6300U, benchmarkIndex ~600) is slower than Lighthouse's reference, and at 2x slowdown the scores were 89 / 87. **The >=90 target is therefore NOT met**; TBT (420-480 ms) is mostly React/Next hydration. Revisit in Phase 8 on faster hardware or with further JS cuts.
+Not done: blog is plain Markdown rendered by a tiny renderer, not MDX (deviation, avoids a dependency); PNG/OG images and favicons; browser screenshots at 360/1280 px; Playwright; a11y audit beyond Lighthouse; legal pages are templates (review with a lawyer).
+Note: an orphaned API process from the first dev session still holds port 8000; the current stack uses 8001.

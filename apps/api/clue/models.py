@@ -124,3 +124,21 @@ class LlmCache(Base):
     hash: Mapped[str] = mapped_column(String(64), primary_key=True)
     response: Mapped[str] = mapped_column(Text)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow)
+
+
+class SupportTicket(_Row, Base):
+    __tablename__ = "support_tickets"
+    name: Mapped[str] = mapped_column(String(120))
+    email: Mapped[str] = mapped_column(String(255))
+    message: Mapped[str] = mapped_column(Text)
+    status: Mapped[str] = mapped_column(String(12), default="open")
+
+
+class Review(_Row, Base):
+    """Real user reviews only; shown publicly once approved by an admin."""
+    __tablename__ = "reviews"
+    user_id: Mapped[str | None] = mapped_column(String(26), nullable=True)
+    name: Mapped[str] = mapped_column(String(120))
+    rating: Mapped[int] = mapped_column(Integer)
+    body: Mapped[str] = mapped_column(Text)
+    approved: Mapped[bool] = mapped_column(Boolean, default=False)

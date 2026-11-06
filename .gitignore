@@ -14,3 +14,5 @@ __pycache__/
 dist/
 *.log
 RUNNING.md
+.next-prod/
+.lighthouse/

@@ -2,6 +2,7 @@ const apiPort = process.env.API_PORT || "8000";
 
 /** @type {import('next').NextConfig} */
 export default {
+  distDir: process.env.NEXT_DIST_DIR || ".next",
   reactStrictMode: true,
   poweredByHeader: false,
   // Browser talks to the API same-origin so session cookies are first-party.

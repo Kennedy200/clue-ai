@@ -1,0 +1,18 @@
+export const FAQ = [
+  { q: "Do I need video editing skills?", a: "No. You give Clue AI an idea, a script or a video, and it builds a first draft. The editor is there if you want to change anything, but you can export the draft as it is." },
+  { q: "Do I have to show my face?", a: "No. Clue AI is designed for faceless videos: narration, captions, images and backgrounds carry the video." },
+  { q: "Who owns the videos I make?", a: "You do. You are responsible for having the rights to anything you upload, and for following the licence terms of music, images and voices you choose." },
+  { q: "Can I cancel any time?", a: "Yes. On a hosted plan, cancelling takes effect at the end of your billing cycle, and you keep and can download the videos you already made. Self-hosted installs have no subscription." },
+  { q: "How do credits work?", a: "Credits pay for AI and render actions, for example a Fast-mode render costs 5 credits. You see the cost before every paid action. Self-hosted installs have unlimited credits." },
+  { q: "Can I use the videos commercially?", a: "Generally yes, subject to the licences of the assets and voices you use. Each asset records its licence, and the voice plugins state theirs. Review them before monetising." },
+  { q: "Which languages are supported?", a: "The interface is in English. Scripts and voiceovers support English accents (including Nigerian English and Naija Pidgin scripts) and other languages, depending on the voices and AI model you use." },
+  { q: "How much data does it use?", a: "Clue AI is built to be data-light: small previews, resumable uploads and an optional step that shrinks videos to 720p before upload." },
+  { q: "Can it work on a cheap Android phone?", a: "The web app is designed for small screens and low-end phones, and can be installed to your home screen. Rendering happens on the server, not on your phone." },
+  { q: "Do I need to pay for AI?", a: "No. By default it uses free models through OpenRouter, which have small daily limits. You can also run a local model with Ollama." },
+  { q: "What happens when the free AI limit runs out?", a: "Clue AI tells you plainly. Everything that does not need the AI model, such as voiceover, captions, editing and rendering, keeps working." },
+  { q: "Is it really open source?", a: "Yes. The code is under the MIT licence, and you can run it on your own computer." },
+  { q: "Can it post to YouTube, TikTok and Instagram?", a: "YouTube Shorts publishing is supported through your own connected channel. TikTok and Instagram need platform approval, so for those you download the video and upload it yourself." },
+  { q: "Can it clone voices or use celebrity voices?", a: "No. We do not offer voice cloning or celebrity voices." },
+  { q: "What is a refund policy?", a: "Hosted plans follow the Refund Policy on this site. Self-hosted installs are free, so there is nothing to refund." },
+  { q: "Is my data private?", a: "On a self-hosted install, your files and database stay on your computer. Only the text needed for AI writing is sent to the AI model you configure." },
+];

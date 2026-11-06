@@ -7,6 +7,7 @@ const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "sw
 const mono = JetBrains_Mono({ subsets: ["latin"], variable: "--font-mono", display: "swap" });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.SITE_URL || "http://localhost:3000"),
   title: { default: "Clue AI — turn scripts into short videos", template: "%s · Clue AI" },
   description: "Turn ideas, scripts and long videos into captioned vertical shorts with AI voiceover. Free to self-host.",
   icons: { icon: "/icon.svg" },

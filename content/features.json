@@ -1,0 +1,437 @@
+[
+  {
+    "slug": "ai-voiceover",
+    "title": "AI Voiceover",
+    "h1": "Natural AI voiceover for your short videos",
+    "description": "Turn any script into a narrated voiceover with dozens of voices, speed control and previews. Runs locally, no per-minute fees.",
+    "intro": "Paste your script, pick a voice, hear a preview, and drop the audio straight into your video. Timing is measured from the real audio, so captions always line up.",
+    "benefits": [
+      { "title": "Preview before you commit", "text": "Every voice has a short cached preview, so you can audition without spending credits." },
+      { "title": "Speed and language filters", "text": "Slow down for storytelling or speed up for quick tips. Filter voices by language and accent." },
+      { "title": "Runs on your machine", "text": "Voices run locally on CPU, so there is no per-character bill and no waiting on a queue." }
+    ],
+    "steps": ["Paste or write your script", "Choose a voice and speed", "Generate and download or send to the editor"],
+    "faq": [
+      { "q": "Does it need internet?", "a": "Not for the voices themselves. They run on your computer after the first model download." },
+      { "q": "Can I clone a voice?", "a": "No. Clue AI does not offer voice cloning or celebrity voices." }
+    ],
+    "related": ["text-to-speech-for-videos", "auto-captions", "ai-script-generator"]
+  },
+  {
+    "slug": "text-to-speech-for-videos",
+    "title": "Text to Speech for Videos",
+    "h1": "Text to speech built for video, not just audio files",
+    "description": "Scene-aware text to speech that measures real duration, so every caption and cut lands on the beat.",
+    "intro": "Generic text to speech gives you one long audio file. Clue AI speaks scene by scene, measures how long each takes, and builds the video timing from that.",
+    "benefits": [
+      { "title": "Timing from the audio", "text": "Scene length follows the voice, so nothing is cut off and nothing hangs in silence." },
+      { "title": "Word-level captions", "text": "Word timestamps come from the voice track, so highlighted captions stay in sync." },
+      { "title": "Edit one scene", "text": "Change a line and regenerate only that scene instead of the whole narration." }
+    ],
+    "steps": ["Write or generate the script", "Split into scenes automatically", "Generate voice per scene and preview"],
+    "faq": [
+      { "q": "Which languages are supported?", "a": "English accents including Nigerian, plus other languages depending on the voice plugins you enable." },
+      { "q": "Is the output free to use commercially?", "a": "The default voices are open-source models. Check each voice plugin's licence before commercial use." }
+    ],
+    "related": ["ai-voiceover", "short-form-video-editor", "auto-captions"]
+  },
+  {
+    "slug": "ai-shorts-generator",
+    "title": "AI Shorts Generator",
+    "h1": "Make YouTube Shorts from an idea or a script",
+    "description": "Go from a topic to a captioned, narrated vertical short without filming or editing from scratch.",
+    "intro": "Give Clue AI a topic or a script. It writes the hook, splits scenes, voices them, adds captions and gives you a 1080x1920 video to polish in the editor.",
+    "benefits": [
+      { "title": "One request per video", "text": "Script, scenes, hook and title come from a single AI call, which keeps free quotas going further." },
+      { "title": "Faceless by design", "text": "Backgrounds, images and captions carry the video. You never need to appear on camera." },
+      { "title": "Edit anything", "text": "Every scene, caption and voice can be changed in the timeline before you export." }
+    ],
+    "steps": ["Type an idea or paste a script", "Review the scenes", "Render and download"],
+    "faq": [
+      { "q": "How long can a Short be?", "a": "Fast mode targets up to 60 seconds, the common Shorts length." },
+      { "q": "Will the video have a watermark?", "a": "Self-hosted installs have none. Hosted free plans may add one." }
+    ],
+    "related": ["ai-video-creator", "shorts-editor", "video-idea-generator"]
+  },
+  {
+    "slug": "ai-clip-maker",
+    "title": "AI Clip Maker",
+    "h1": "Find the best moments in a long video",
+    "description": "Upload a long video, get ranked clips with a reason for each, reframed to vertical with captions.",
+    "intro": "Clue AI transcribes your video, scores windows of speech for hook, emotion, clarity and payoff, and shows the strongest moments with a plain-language reason.",
+    "benefits": [
+      { "title": "Ranked with reasons", "text": "Each clip comes with a score and a short explanation, so you know why it was picked." },
+      { "title": "Vertical reframing", "text": "Faces are tracked so the speaker stays in frame in 9:16." },
+      { "title": "Captions burned in", "text": "Word-highlighted captions are added during export." }
+    ],
+    "steps": ["Upload your video", "Review the ranked clips", "Export the ones you like"],
+    "faq": [
+      { "q": "How long a source can I upload?", "a": "The credit table prices sources up to 30 minutes. Longer files are limited by your plan and disk space." },
+      { "q": "Is my video sent to a third party?", "a": "Transcription runs locally. Only transcript text is sent to the AI model for scoring." }
+    ],
+    "related": ["video-clipping-tool", "highlight-video-maker", "auto-captions"]
+  },
+  {
+    "slug": "video-clipping-tool",
+    "title": "Video Clipping Tool",
+    "h1": "Cut long videos into short clips automatically",
+    "description": "A clipping tool that reads the transcript to cut at sentence boundaries instead of mid-word.",
+    "intro": "Manual clipping means scrubbing a timeline for an hour. Clue AI proposes cuts at natural sentence ends so clips start and finish cleanly.",
+    "benefits": [
+      { "title": "Clean boundaries", "text": "Cuts snap to the end of sentences so clips do not stop mid-thought." },
+      { "title": "Adjust by hand", "text": "Trim any clip in the editor if you disagree with the suggestion." },
+      { "title": "Batch export", "text": "Select several clips and export them together." }
+    ],
+    "steps": ["Upload", "Pick clips from the list", "Trim if needed and export"],
+    "faq": [
+      { "q": "Which formats are accepted?", "a": "Common formats such as MP4, MOV and WebM. Files are validated before processing." },
+      { "q": "Does it re-encode my video?", "a": "Exports are re-encoded to H.264 and AAC for wide compatibility." }
+    ],
+    "related": ["ai-clip-maker", "highlight-video-maker", "short-form-video-editor"]
+  },
+  {
+    "slug": "tiktok-video-generator",
+    "title": "TikTok Video Generator",
+    "h1": "Generate TikTok-ready videos in minutes",
+    "description": "Vertical videos with captions and voiceover, sized and encoded for TikTok.",
+    "intro": "Start from a script or idea and get a 9:16 video with the fast-cut pacing and big captions short-form viewers expect.",
+    "benefits": [
+      { "title": "Right format", "text": "1080x1920 H.264 with fast-start so uploads play immediately." },
+      { "title": "Caption styles", "text": "Choose bold, highlighted, minimal and other caption looks." },
+      { "title": "Download and post", "text": "Direct publishing needs platform approval, so Clue AI gives you the file and opens the upload page." }
+    ],
+    "steps": ["Write or generate a script", "Pick a style and voice", "Render and upload"],
+    "faq": [
+      { "q": "Can it post to TikTok for me?", "a": "Not yet. TikTok requires app review, so download and upload is the working path." },
+      { "q": "Does it use trending sounds?", "a": "No. Add trending audio inside TikTok after you upload." }
+    ],
+    "related": ["reel-generator", "ai-shorts-generator", "tiktok-editor"]
+  },
+  {
+    "slug": "reel-generator",
+    "title": "Reel Generator",
+    "h1": "Make Instagram Reels without a camera",
+    "description": "Turn scripts and ideas into vertical Reels with captions and voiceover.",
+    "intro": "Reels reward clear hooks and readable captions. Clue AI builds both and leaves you in control of the final edit.",
+    "benefits": [
+      { "title": "Hook first", "text": "Scripts are written to open on the strongest line." },
+      { "title": "Readable captions", "text": "Large, high-contrast captions that work with the sound off." },
+      { "title": "Brand kit", "text": "Add your colours, logo and font for a consistent look." }
+    ],
+    "steps": ["Describe the Reel", "Review scenes and captions", "Export and share"],
+    "faq": [
+      { "q": "What aspect ratio is used?", "a": "9:16 at 1080x1920." },
+      { "q": "Can I add my own footage?", "a": "Yes. Uploads are the first choice for visuals." }
+    ],
+    "related": ["tiktok-video-generator", "ai-shorts-generator", "reels-editor"]
+  },
+  {
+    "slug": "ai-video-creator",
+    "title": "AI Video Creator",
+    "h1": "An AI video creator that explains what it does",
+    "description": "Script, voice, visuals and captions assembled for you, with each step visible and editable.",
+    "intro": "Clue AI does not hide the work. You see the script, the scene plan, the voice and the visuals, and you can change any of them.",
+    "benefits": [
+      { "title": "Six video styles", "text": "Text story, video story, commentary, split screen, ranking and auto clipping." },
+      { "title": "Honest visuals", "text": "Visuals come from your uploads, generated backgrounds, AI images and openly licensed photos, not invented footage." },
+      { "title": "Own your files", "text": "Everything is stored on your disk and exportable." }
+    ],
+    "steps": ["Choose a style", "Generate", "Edit and export"],
+    "faq": [
+      { "q": "Does it generate video from text?", "a": "It matches images and loops to your scenes with motion. Frontier video-model generation can be added as a plugin." },
+      { "q": "What does it cost to run?", "a": "Nothing beyond your computer when you use the free local tools and a free AI key." }
+    ],
+    "related": ["text-to-video", "ai-shorts-generator", "short-form-video-editor"]
+  },
+  {
+    "slug": "shorts-editor",
+    "title": "YouTube Shorts Editor",
+    "h1": "A Shorts editor that works on a phone",
+    "description": "Trim, reorder and caption scenes in an editor designed for small screens and slow connections.",
+    "intro": "The editor loads a light 480p proxy for quick previews, so editing stays smooth on a modest phone and mobile data.",
+    "benefits": [
+      { "title": "Touch friendly", "text": "Large targets and bottom sheets instead of a shrunken desktop layout." },
+      { "title": "Autosave", "text": "Changes are saved as you go, with version history." },
+      { "title": "Publish to YouTube", "text": "Connect your channel and publish Shorts from the app." }
+    ],
+    "steps": ["Open a project", "Edit scenes and captions", "Export or publish"],
+    "faq": [
+      { "q": "Does it work offline?", "a": "The app shell loads offline and keeps drafts. Rendering needs the server." },
+      { "q": "How much data does it use?", "a": "Previews use a small proxy, and uploads can be compressed first." }
+    ],
+    "related": ["ai-shorts-generator", "short-form-video-editor", "tiktok-editor"]
+  },
+  {
+    "slug": "tiktok-editor",
+    "title": "TikTok Editor",
+    "h1": "A TikTok video editor with captions built in",
+    "description": "Edit vertical videos with word-highlighted captions, voiceover and music in the browser.",
+    "intro": "Cut scenes, change captions and swap the voice without leaving the page.",
+    "benefits": [
+      { "title": "Caption styles", "text": "Eight or more caption looks with colour, font and position controls." },
+      { "title": "Music with ducking", "text": "Background music lowers automatically under speech." },
+      { "title": "Undo and redo", "text": "Experiment freely and step back." }
+    ],
+    "steps": ["Open or create a project", "Adjust scenes", "Export"],
+    "faq": [
+      { "q": "Can I import my own clips?", "a": "Yes, upload them to the media library." },
+      { "q": "Are exports limited in length?", "a": "Fast mode up to 60 seconds, Pro and Cinematic up to 3 minutes." }
+    ],
+    "related": ["tiktok-video-generator", "shorts-editor", "reels-editor"]
+  },
+  {
+    "slug": "reels-editor",
+    "title": "Reels Editor",
+    "h1": "Edit Reels with sharp captions and clean cuts",
+    "description": "A vertical editor for Instagram Reels with captions, voiceover and brand kits.",
+    "intro": "Keep your Reels consistent: save a brand kit once and apply it to every project.",
+    "benefits": [
+      { "title": "Brand kits", "text": "Colours, logo and caption style in one reusable kit." },
+      { "title": "Scene timeline", "text": "Drag, trim, split and duplicate scenes." },
+      { "title": "Fast previews", "text": "A light proxy keeps playback smooth." }
+    ],
+    "steps": ["Pick a template or start blank", "Edit", "Export for Instagram"],
+    "faq": [
+      { "q": "Can I publish directly?", "a": "Direct Instagram publishing needs platform review. Download and upload for now." },
+      { "q": "Does it add a watermark?", "a": "Not on self-hosted installs." }
+    ],
+    "related": ["reel-generator", "tiktok-editor", "shorts-editor"]
+  },
+  {
+    "slug": "x-video-editor",
+    "title": "X (Twitter) Video Editor",
+    "h1": "Trim and caption videos for X",
+    "description": "Make short captioned videos for X posts, with the silent-autoplay case in mind.",
+    "intro": "Most people watch X videos muted. Clear captions do the talking.",
+    "benefits": [
+      { "title": "Captions first", "text": "High-contrast captions that read without sound." },
+      { "title": "Short and punchy", "text": "Trim to the point that earns the click." },
+      { "title": "Square or vertical", "text": "Export to the shape that suits your post." }
+    ],
+    "steps": ["Upload a clip", "Trim and caption", "Export"],
+    "faq": [
+      { "q": "Which sizes are supported?", "a": "Vertical 9:16 today; other ratios are on the roadmap." },
+      { "q": "Is there a length limit?", "a": "Limits come from your plan and the platform you post to." }
+    ],
+    "related": ["auto-captions", "video-clipping-tool", "short-form-video-editor"]
+  },
+  {
+    "slug": "video-idea-generator",
+    "title": "Video Idea Generator",
+    "h1": "Ten video ideas with hooks, from one niche",
+    "description": "Enter your niche and get ten ideas, each with an opening hook line.",
+    "intro": "Staring at a blank page is the slowest part of posting. Give Clue AI your niche and audience and get a batch of angles to choose from.",
+    "benefits": [
+      { "title": "Hook included", "text": "Every idea comes with a first-line hook." },
+      { "title": "Niche presets", "text": "Football, fintech tips, faith, comedy skits, storytime, Nollywood recaps and more." },
+      { "title": "One click to script", "text": "Turn any idea into a full script and scene plan." }
+    ],
+    "steps": ["Enter niche and audience", "Get ten ideas", "Pick one and generate"],
+    "faq": [
+      { "q": "Are the ideas unique?", "a": "They are suggestions. Check that they fit your voice and facts before posting." },
+      { "q": "Does it cost credits?", "a": "A batch costs one credit on hosted plans, and is free when self-hosted." }
+    ],
+    "related": ["ai-script-generator", "ai-shorts-generator", "title-scorer"]
+  },
+  {
+    "slug": "highlight-video-maker",
+    "title": "Highlight Video Maker",
+    "h1": "Turn a stream or podcast into highlights",
+    "description": "Find the high-energy moments in long recordings and export them as short vertical highlights.",
+    "intro": "Long recordings hide a few great minutes. Clue AI finds them by reading the transcript and ranks them for you.",
+    "benefits": [
+      { "title": "Reasoned picks", "text": "See why each moment was chosen." },
+      { "title": "Hook suggestions", "text": "A suggested opening line for each clip." },
+      { "title": "Ready to post", "text": "Captioned, vertical and loudness-normalised." }
+    ],
+    "steps": ["Upload the recording", "Review highlights", "Export"],
+    "faq": [
+      { "q": "Does it detect gameplay action?", "a": "Scoring uses speech and transcript. Silent action is not detected yet." },
+      { "q": "Can I add my own clip manually?", "a": "Yes, set start and end in the editor." }
+    ],
+    "related": ["ai-clip-maker", "video-clipping-tool", "auto-captions"]
+  },
+  {
+    "slug": "text-to-video",
+    "title": "Text to Video (AI Footage Match)",
+    "h1": "Text to video, with honest limits",
+    "description": "Clue AI matches images, loops and motion to your script. It does not invent footage with a frontier video model.",
+    "intro": "True prompt-to-footage models cost real money per second. Clue AI takes a practical route: it reads your scenes, picks matching visuals and adds motion.",
+    "benefits": [
+      { "title": "Scene-matched visuals", "text": "Keywords from each scene pull AI images or openly licensed photos." },
+      { "title": "Ken Burns motion", "text": "Slow pans and zooms make stills feel alive." },
+      { "title": "Pluggable", "text": "A video-generation plugin can be added when you have a provider." }
+    ],
+    "steps": ["Write the script", "Visuals are matched to scenes", "Swap any you dislike"],
+    "faq": [
+      { "q": "Is this real generative video?", "a": "No, and we say so. It is footage matching with motion." },
+      { "q": "Are the images licensed?", "a": "Photos from Wikimedia Commons keep author and licence details so credits can be added." }
+    ],
+    "related": ["ai-video-creator", "ai-shorts-generator", "thumbnail-maker"]
+  },
+  {
+    "slug": "short-form-video-editor",
+    "title": "Short-Form Video Editor",
+    "h1": "One editor for every short-form platform",
+    "description": "A timeline editor for vertical video with captions, voice, music and brand kits.",
+    "intro": "Make once, export for Shorts, TikTok and Reels. The same project powers all three.",
+    "benefits": [
+      { "title": "One source of truth", "text": "The preview and the final render read the same scene data." },
+      { "title": "Fast, Pro, Cinematic", "text": "Pick the finish level that fits the video." },
+      { "title": "Save as template", "text": "Reuse a format across many videos." }
+    ],
+    "steps": ["Create or open a project", "Edit", "Render"],
+    "faq": [
+      { "q": "Can I share templates?", "a": "Yes, export a template file and share it." },
+      { "q": "Does it support teams?", "a": "Workspaces with roles are planned for the Business plan." }
+    ],
+    "related": ["shorts-editor", "tiktok-editor", "reels-editor"]
+  },
+  {
+    "slug": "thumbnail-maker",
+    "title": "Thumbnail Maker",
+    "h1": "Thumbnails with text that people can read",
+    "description": "Make 1280x720 thumbnails with a title overlay on a generated or stock background.",
+    "intro": "Pick a background, add a short title, and get several variants to choose from.",
+    "benefits": [
+      { "title": "Four variants", "text": "Compare layouts side by side." },
+      { "title": "Readable text", "text": "Contrast checks keep text legible." },
+      { "title": "PNG export", "text": "1280x720 ready for upload." }
+    ],
+    "steps": ["Enter the title", "Choose a background", "Download"],
+    "faq": [
+      { "q": "Can it use my face?", "a": "Upload a photo and use it as the background." },
+      { "q": "Which sizes?", "a": "1280x720 for YouTube; other sizes can be added." }
+    ],
+    "related": ["title-scorer", "ai-shorts-generator", "video-idea-generator"]
+  },
+  {
+    "slug": "ai-script-generator",
+    "title": "AI Script Generator",
+    "h1": "Short-form scripts that open with a hook",
+    "description": "Generate a script, scene plan, hook and title for a short video in one request.",
+    "intro": "Choose a style, tone and length. Clue AI writes a script that hooks in the first line and fits your target duration.",
+    "benefits": [
+      { "title": "Tone presets", "text": "Standard English, Nigerian English, Naija Pidgin and more." },
+      { "title": "Script enhancer", "text": "Paste your own draft and have it tightened for hook and pacing." },
+      { "title": "Brand voice", "text": "Teach it your style from three sample posts." }
+    ],
+    "steps": ["Pick style and tone", "Generate", "Edit the script"],
+    "faq": [
+      { "q": "Which AI does it use?", "a": "Free models through OpenRouter by default, or a local model through Ollama." },
+      { "q": "Can it fact-check?", "a": "No. Always verify claims before you publish." }
+    ],
+    "related": ["video-idea-generator", "ai-voiceover", "title-scorer"]
+  },
+  {
+    "slug": "auto-captions",
+    "title": "Auto Captions",
+    "h1": "Word-by-word captions that follow the speech",
+    "description": "Automatic captions with word highlighting, eight or more styles and full colour, font and position control.",
+    "intro": "Transcription runs on your machine. Captions are timed per word so the spoken word lights up as it is said.",
+    "benefits": [
+      { "title": "Edit the words", "text": "Fix names and spelling in a simple editor." },
+      { "title": "Many styles", "text": "Bold, outline, karaoke, minimal and more." },
+      { "title": "Download SRT or VTT", "text": "Use the transcript anywhere." }
+    ],
+    "steps": ["Upload or pick a video", "Transcribe", "Style and export"],
+    "faq": [
+      { "q": "How accurate is it?", "a": "Good on clear speech; always review names and slang." },
+      { "q": "Does it handle Nigerian accents?", "a": "The model handles many accents, but quality varies. Edit where needed." }
+    ],
+    "related": ["video-transcriber", "ai-clip-maker", "text-to-speech-for-videos"]
+  },
+  {
+    "slug": "title-scorer",
+    "title": "Title Scorer",
+    "h1": "Score your video title and get five better ones",
+    "description": "Paste a title, see a score with reasons, and get five rewrites.",
+    "intro": "A title decides whether the video gets opened. Clue AI scores clarity and curiosity and suggests alternatives.",
+    "benefits": [
+      { "title": "Reasons, not just a number", "text": "Short notes on what to fix." },
+      { "title": "Five rewrites", "text": "Different angles to test." },
+      { "title": "Cheap to run", "text": "One request per scoring." }
+    ],
+    "steps": ["Paste a title", "Read the score", "Pick a rewrite"],
+    "faq": [
+      { "q": "Is the score a prediction?", "a": "No. It is guidance, not a guarantee of views." },
+      { "q": "Does it work in other languages?", "a": "It can, with varying quality." }
+    ],
+    "related": ["video-idea-generator", "thumbnail-maker", "ai-script-generator"]
+  },
+  {
+    "slug": "video-transcriber",
+    "title": "Video Transcriber",
+    "h1": "Transcribe video and audio to text",
+    "description": "Get a transcript with timestamps, edit it, and download SRT or VTT.",
+    "intro": "Upload a video or audio file and get text back, running locally with no per-minute fee.",
+    "benefits": [
+      { "title": "Timestamps", "text": "Every word has a time, so you can jump to it." },
+      { "title": "Edit in place", "text": "Fix mistakes before exporting." },
+      { "title": "Private", "text": "Audio is processed on your computer." }
+    ],
+    "steps": ["Upload", "Transcribe", "Edit and download"],
+    "faq": [
+      { "q": "How long does it take?", "a": "Depends on your CPU and the model size you choose." },
+      { "q": "Which formats?", "a": "Most common video and audio formats." }
+    ],
+    "related": ["auto-captions", "ai-clip-maker", "highlight-video-maker"]
+  },
+  {
+    "slug": "compare-clue-ai-vs-manual-editing",
+    "title": "Clue AI vs Manual Editing",
+    "h1": "Clue AI vs editing every short by hand",
+    "description": "A fair comparison of generating shorts with Clue AI and building them manually in a video editor.",
+    "kind": "comparison",
+    "intro": "Manual editing gives total control and a distinctive look. Clue AI trades some of that control for speed. Which is right depends on how many videos you make and how much you enjoy editing.",
+    "benefits": [
+      { "title": "Where Clue AI is faster", "text": "Scripting, voiceover, captions and first-draft assembly happen automatically." },
+      { "title": "Where manual wins", "text": "Unique visual style, complex effects and footage you shot yourself with precise cuts." },
+      { "title": "Best of both", "text": "Generate a draft in Clue AI, then fine-tune in its editor, or export and finish elsewhere." }
+    ],
+    "steps": ["Estimate videos per week", "Try a draft in Clue AI", "Decide how much to hand-edit"],
+    "faq": [
+      { "q": "Will AI drafts look generic?", "a": "They can. Your script, footage and edits are what make a video yours." },
+      { "q": "Can I import work from other editors?", "a": "You can upload clips and audio; project files from other editors are not supported." }
+    ],
+    "related": ["short-form-video-editor", "ai-shorts-generator", "compare-clue-ai-vs-subscription-tools"]
+  },
+  {
+    "slug": "compare-clue-ai-vs-subscription-tools",
+    "title": "Clue AI vs Subscription Video Tools",
+    "h1": "Clue AI vs paid AI video subscriptions",
+    "description": "How a self-hosted, open-source tool compares with monthly-subscription AI video services.",
+    "kind": "comparison",
+    "intro": "Hosted subscription tools are convenient: nothing to install, support included, often polished. Clue AI is open source and runs on your own computer, which changes the trade-offs.",
+    "benefits": [
+      { "title": "Cost", "text": "Self-hosting has no subscription. You provide the computer and electricity, and use free AI quotas or a local model." },
+      { "title": "Convenience", "text": "Hosted tools need no setup and may offer features backed by paid models that Clue AI does not include." },
+      { "title": "Control", "text": "With Clue AI your files and data stay on your machine, and you can change the code." }
+    ],
+    "steps": ["List the features you need", "Check the free limits of each option", "Try both on one video"],
+    "faq": [
+      { "q": "Is Clue AI as polished?", "a": "It is early. Hosted products may be more polished today." },
+      { "q": "Are free AI limits enough?", "a": "Free models have small daily limits, so Clue AI keeps requests minimal. Heavy daily use may need a paid key or a local model." }
+    ],
+    "related": ["ai-video-creator", "ai-shorts-generator", "compare-clue-ai-vs-manual-editing"]
+  },
+  {
+    "slug": "compare-clue-ai-vs-phone-editing-apps",
+    "title": "Clue AI vs Phone Editing Apps",
+    "h1": "Clue AI vs editing on your phone",
+    "description": "When a phone editing app is enough, and when a generator saves you time.",
+    "kind": "comparison",
+    "intro": "Phone editors are fast for clips you filmed yourself. Clue AI is aimed at faceless, script-driven videos and at cutting long recordings into clips.",
+    "benefits": [
+      { "title": "Best on a phone app", "text": "Quick trims of footage you shot, using templates and trending effects inside the platform." },
+      { "title": "Best in Clue AI", "text": "Scripted narration, automatic captions, and turning a long video into several clips." },
+      { "title": "Using both", "text": "Film on your phone, upload to Clue AI for clipping and captions, finish in the app you like." }
+    ],
+    "steps": ["Decide if you are on camera", "Choose a tool per video type", "Combine when useful"],
+    "faq": [
+      { "q": "Does Clue AI have a mobile app?", "a": "It is a web app you can install to your home screen." },
+      { "q": "Does it work on slow data?", "a": "It is built to be data-light, with resumable uploads and small previews." }
+    ],
+    "related": ["shorts-editor", "reels-editor", "ai-clip-maker"]
+  }
+]

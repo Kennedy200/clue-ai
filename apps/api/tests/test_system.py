@@ -38,3 +38,19 @@ def test_plugins_endpoint_requires_login(client):
     assert client.get("/api/plugins").status_code == 401
     signup(client)
     assert client.get("/api/plugins").status_code == 200
+
+
+def test_contact_saves_ticket_and_emails_admin(client, db):
+    from sqlalchemy import select
+    from clue.models import DevMail, SupportTicket
+    r = client.post("/api/contact", json={"name": "Ada", "email": "ada@example.com", "message": "Hello there"})
+    assert r.status_code == 200
+    assert db.scalar(select(SupportTicket)).email == "ada@example.com"
+    assert db.scalar(select(DevMail).where(DevMail.subject.like("Support%"))) is not None
+    assert client.post("/api/contact", json={"name": "A", "email": "bad", "message": "x"}).status_code == 422
+
+
+def test_reviews_empty_and_plans(client):
+    assert client.get("/api/reviews").json() == []
+    ids = [p["id"] for p in client.get("/api/plans").json()]
+    assert ids == ["free", "starter", "creator", "business"]

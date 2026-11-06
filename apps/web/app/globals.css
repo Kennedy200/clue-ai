@@ -51,3 +51,10 @@ h1, h2, h3 { font-family: var(--font-display); letter-spacing: -0.02em; }
 .btn-ghost { border: 1px solid var(--line); background: var(--card); }
 .input { width: 100%; min-height: 44px; padding: 0 .9rem; border-radius: 12px; border: 1px solid var(--line); background: var(--card); color: var(--fg); }
 .card { background: var(--card); border: 1px solid var(--line); border-radius: 20px; box-shadow: 0 6px 24px rgb(14 11 31 / .06); }
+
+.prose-clue { max-width: 42rem; font-size: 1.05rem; line-height: 1.75; }
+.prose-clue h2 { margin: 2rem 0 .5rem; font-size: 1.5rem; font-weight: 700; }
+.prose-clue p { margin: 1rem 0; }
+.prose-clue ul, .prose-clue ol { margin: 1rem 0; padding-left: 1.4rem; }
+.prose-clue ul { list-style: disc; } .prose-clue ol { list-style: decimal; }
+.prose-clue li { margin: .35rem 0; }
