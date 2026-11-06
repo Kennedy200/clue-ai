@@ -1,0 +1,12 @@
+{
+  "name": "clue-ai",
+  "private": true,
+  "version": "0.1.0",
+  "license": "MIT",
+  "scripts": {
+    "setup": "node scripts/setup.mjs",
+    "dev": "node scripts/dev.mjs",
+    "test": "node scripts/test.mjs",
+    "scan": "node scripts/secret-scan.mjs"
+  }
+}

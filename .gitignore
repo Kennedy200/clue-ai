@@ -13,3 +13,4 @@ __pycache__/
 .next/
 dist/
 *.log
+RUNNING.md

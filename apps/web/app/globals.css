@@ -1,0 +1,53 @@
+@import "tailwindcss";
+
+/* Clue AI design tokens. Light is default; dark via [data-theme="dark"]. */
+:root {
+  --ink: #0e0b1f;
+  --paper: #faf8f3;
+  --violet: #6c4dff;
+  --violet-dark: #5236e0;
+  --lime: #c8ff3d;
+  --coral: #ff5c7a;
+  --bg: var(--paper);
+  --fg: var(--ink);
+  --card: #ffffff;
+  --muted: #5b5873;
+  --line: #e6e2d8;
+}
+[data-theme="dark"] {
+  --bg: var(--ink);
+  --fg: #f4f2ff;
+  --card: #17132e;
+  --muted: #a9a5c4;
+  --line: #2a2548;
+}
+
+@theme inline {
+  --color-ink: var(--ink);
+  --color-paper: var(--paper);
+  --color-violet: var(--violet);
+  --color-lime: var(--lime);
+  --color-coral: var(--coral);
+  --color-bg: var(--bg);
+  --color-fg: var(--fg);
+  --color-card: var(--card);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --font-display: var(--font-space), system-ui, sans-serif;
+  --font-sans: var(--font-inter), system-ui, sans-serif;
+  --font-mono: var(--font-mono), ui-monospace, monospace;
+}
+
+html { background: var(--bg); color: var(--fg); }
+body { font-family: var(--font-sans); -webkit-font-smoothing: antialiased; }
+h1, h2, h3 { font-family: var(--font-display); letter-spacing: -0.02em; }
+:focus-visible { outline: 3px solid var(--violet); outline-offset: 2px; border-radius: 8px; }
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: .5rem; min-height: 44px; padding: 0 1.25rem; border-radius: 14px; font-weight: 600; transition: transform .15s ease-out, background .15s; cursor: pointer; }
+.btn:active { transform: scale(.97); }
+.btn-primary { background: var(--violet); color: #fff; }
+.btn-primary:hover { background: var(--violet-dark); }
+.btn-ghost { border: 1px solid var(--line); background: var(--card); }
+.input { width: 100%; min-height: 44px; padding: 0 .9rem; border-radius: 12px; border: 1px solid var(--line); background: var(--card); color: var(--fg); }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 20px; box-shadow: 0 6px 24px rgb(14 11 31 / .06); }

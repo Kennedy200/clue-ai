@@ -1,0 +1,14 @@
+{
+  "name": "smtp",
+  "kind": "email",
+  "version": "0.1.0",
+  "title": "SMTP email",
+  "description": "Send real emails through any SMTP server. Off by default; the local dev inbox is used instead.",
+  "enabled_by_default": false,
+  "config": [
+    { "key": "host", "label": "SMTP host", "type": "text" },
+    { "key": "port", "label": "Port", "type": "number", "default": 587 },
+    { "key": "username", "label": "Username", "type": "text" },
+    { "key": "password", "label": "Password", "type": "secret" }
+  ]
+}

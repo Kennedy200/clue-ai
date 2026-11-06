@@ -23,8 +23,8 @@ Source of truth: the owner's master build prompt (sections 0–16). This file tr
 
 ## 3. Phases
 
-- [ ] **Phase 0 – Plan**: PLAN.md, ARCHITECTURE.md, tool check, git init.
-- [ ] **Phase 1 – Foundation**: monorepo scripts (`npm run setup`, `npm run dev`, links table), DB + migrations, auth, design tokens, brand SVGs, app shell, CI, GitHub repo (needs `gh`).
+- [x] **Phase 0 – Plan**: PLAN.md, ARCHITECTURE.md, tool check, git init.
+- [~] **Phase 1 – Foundation** (done except GitHub repo: `gh` missing; see report): monorepo scripts (`npm run setup`, `npm run dev`, links table), DB + migrations, auth, design tokens, brand SVGs, app shell, CI, GitHub repo (needs `gh`).
 - [ ] **Phase 2 – Marketing site**: Home, Pricing, features hub + pages, blog, legal, SEO.
 - [ ] **Phase 3 – Core pipeline**: queue, storage, LLM wrapper + prompts, TTS, STT, asset providers, Scene JSON, FFmpeg renderer (Fast), SSE.
 - [ ] **Phase 4 – Styles + tools**: 6 styles, standalone tools, Auto Clipping.
@@ -64,3 +64,10 @@ Source of truth: the owner's master build prompt (sections 0–16). This file tr
 ## 7. Phase reports
 
 _(appended at the end of each phase)_
+
+### Phase 1 report (2026-11-06)
+
+Built and run: `npm run setup` and `npm run dev` on Windows (links table prints, RUNNING.md written), FastAPI + SQLite/WAL + Alembic baseline, auth (signup/login/logout/verify/forgot/reset/change/delete/export, CSRF, lockout, rate limits), encrypted settings store, `/setup` OpenRouter key page (key test hits OpenRouter, not yet exercised with a real key), OpenRouter provider with free-model discovery/fallback/cache/usage logging, credits ledger, DB job queue + worker, plugin discovery, dev inbox, brand mark + lockup SVG, CI workflow.
+Verified: 16 pytest tests green (auth flow, lockout, referral, credits reserve/settle/refund, concurrent claim, retries, no-key error); web type-check clean; all pages return 200 through the Next proxy; signup/me/dev-mail confirmed via curl.
+Not yet done: GitHub repo (needs `gh`), PNG/OG brand assets, shadcn/Framer/TanStack wiring, browser screenshots at 360/1280 px, Playwright, Docker files, LLM path tested against a live key.
+Deviation: the first-run key page is only open before any user exists; because seed creates demo users, the owner signs in as admin first. Revisit in Phase 8.
