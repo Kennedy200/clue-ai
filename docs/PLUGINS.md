@@ -31,3 +31,8 @@ Phase status: discovery and listing work now. Loading plugin code and the enable
 Turn a plugin on or off as admin: `POST /api/admin/plugins/<kind>/<name>` with `{"enabled": true}`. The state is stored in the `settings` table under the manifest's `setting` key. Plugin voices appear in every voice picker with an id prefix (`piper:`, `edge:`).
 
 To add a voice engine: implement `TTSProvider` (`voices()`, `synthesize()`) in `apps/api/clue/ai/tts.py`, register it in `Router`, add a manifest with a `setting`.
+
+## Built-in integrations (not plugins yet)
+
+- **YouTube publishing**: Admin > Integrations takes a Google OAuth client id and secret. Redirect URI to register in Google Cloud: `<SITE_URL>/api/youtube/callback`. Scope: `youtube.upload` only. Without it the calendar offers the publish pack.
+- **Payment gateway**: `clue/core/billing.py` has a `Gateway` class with one method, `charge(user, amount, currency) -> bool`. Replace it to take real money; invoices, retries and renewals already sit on top of it.

@@ -230,6 +230,63 @@ class Invoice(_Row, Base):
     paid_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
 
 
+class Team(_Row, Base):
+    __tablename__ = "teams"
+    name: Mapped[str] = mapped_column(String(80))
+    owner_id: Mapped[str] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
+
+
+class TeamMember(_Row, Base):
+    """role: owner | admin | editor | viewer."""
+    __tablename__ = "team_members"
+    team_id: Mapped[str] = mapped_column(ForeignKey("teams.id", ondelete="CASCADE"), index=True)
+    user_id: Mapped[str] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
+    role: Mapped[str] = mapped_column(String(10), default="viewer")
+
+
+class TeamInvite(_Row, Base):
+    __tablename__ = "team_invites"
+    team_id: Mapped[str] = mapped_column(ForeignKey("teams.id", ondelete="CASCADE"), index=True)
+    email: Mapped[str] = mapped_column(String(255), index=True)
+    role: Mapped[str] = mapped_column(String(10), default="viewer")
+    token_hash: Mapped[str] = mapped_column(String(64), unique=True, index=True)
+    expires_at: Mapped[datetime] = mapped_column(DateTime)
+    used: Mapped[bool] = mapped_column(Boolean, default=False)
+
+
+class SharedProject(_Row, Base):
+    """A finished video shared into a team's library (read-only for others; editors can copy it)."""
+    __tablename__ = "shared_projects"
+    team_id: Mapped[str] = mapped_column(ForeignKey("teams.id", ondelete="CASCADE"), index=True)
+    project_id: Mapped[str] = mapped_column(ForeignKey("projects.id", ondelete="CASCADE"), index=True)
+    shared_by: Mapped[str] = mapped_column(String(26))
+
+
+class BrandKit(_Row, Base):
+    """Owned by a user (team_id null) or shared with a team."""
+    __tablename__ = "brand_kits"
+    user_id: Mapped[str] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
+    team_id: Mapped[str | None] = mapped_column(ForeignKey("teams.id", ondelete="CASCADE"), nullable=True, index=True)
+    name: Mapped[str] = mapped_column(String(80))
+    caption: Mapped[dict] = mapped_column(JSON, default=dict)  # a CaptionStyle subset
+    watermark: Mapped[str] = mapped_column(String(60), default="")
+    outro: Mapped[str] = mapped_column(String(120), default="")  # call-to-action line appended to scripts
+    is_default: Mapped[bool] = mapped_column(Boolean, default=False)
+
+
+class ScheduledPost(_Row, Base):
+    """Content calendar entry. status: planned | published | skipped."""
+    __tablename__ = "scheduled_posts"
+    user_id: Mapped[str] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
+    project_id: Mapped[str | None] = mapped_column(ForeignKey("projects.id", ondelete="SET NULL"), nullable=True)
+    platform: Mapped[str] = mapped_column(String(20), default="youtube")
+    title: Mapped[str] = mapped_column(String(200))
+    notes: Mapped[str] = mapped_column(Text, default="")
+    scheduled_at: Mapped[datetime] = mapped_column(DateTime, index=True)
+    status: Mapped[str] = mapped_column(String(10), default="planned")
+    external_url: Mapped[str | None] = mapped_column(String(300), nullable=True)
+
+
 class ProjectVersion(_Row, Base):
     """Autosave history: a snapshot of the Scene JSON before each overwrite."""
     __tablename__ = "project_versions"

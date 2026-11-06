@@ -153,3 +153,4 @@ def recover_stale(db: Session) -> None:
     """Jobs left 'running' by a crashed worker go back to the queue."""
     for j in db.scalars(select(Job).where(Job.status == "running")).all():
         queue.fail(db, j.id, "worker restarted")
+import clue.jobs.publish  # noqa: E402,F401  (registers the YouTube publish handler)

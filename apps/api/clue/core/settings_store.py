@@ -9,7 +9,7 @@ from clue.models import Setting
 from .config import get_settings
 from .security import decrypt, encrypt
 
-SECRET_KEYS = {"openrouter_api_key"}
+SECRET_KEYS = {"openrouter_api_key", "youtube_client_secret"}  # keys starting with "yt_" are encrypted too
 
 
 def get_setting(db: Session, key: str, default: str = "") -> str:
@@ -21,7 +21,7 @@ def get_setting(db: Session, key: str, default: str = "") -> str:
 
 
 def set_setting(db: Session, key: str, value: str) -> None:
-    enc = key in SECRET_KEYS
+    enc = key in SECRET_KEYS or key.startswith("yt_")
     row = db.get(Setting, key) or Setting(key=key)
     row.value = encrypt(value) if (enc and value) else value
     row.encrypted = enc

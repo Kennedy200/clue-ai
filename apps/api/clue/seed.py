@@ -15,15 +15,20 @@ PLANS = [
     ("free", "Free", 0, 0, 15, {"watermark": True, "modes": ["fast"], "brand_kit": False}),
     ("starter", "Starter", 9900, 700, 200, {"watermark": False, "modes": ["fast"], "max_seconds": 60}),
     ("creator", "Creator", 19900, 1400, 500, {"watermark": False, "modes": ["fast", "pro", "cinematic"], "brand_kit": True}),
-    ("business", "Business", 49900, 3500, 1200, {"watermark": False, "modes": ["fast", "pro", "cinematic"], "team": True, "bulk": True}),
+    ("business", "Business", 49900, 3500, 1200, {"watermark": False, "modes": ["fast", "pro", "cinematic"], "brand_kit": True, "team": True, "bulk": True}),
 ]
 
 
 def ensure_reference_data(db: Session) -> None:
     """Idempotent: create plans that do not exist yet (admins may edit them afterwards)."""
     for i, (pid, name, ngn, usd, cr, feats) in enumerate(PLANS):
-        if db.get(Plan, pid) is None:
+        row = db.get(Plan, pid)
+        if row is None:
             db.add(Plan(id=pid, name=name, price_ngn_month=ngn, price_usd_month=usd, monthly_credits=cr, features=feats, sort=i))
+        else:  # add feature flags introduced by newer versions without touching what an admin changed
+            missing = {k: v for k, v in feats.items() if k not in row.features}
+            if missing:
+                row.features = {**row.features, **missing}
     db.commit()
 
 

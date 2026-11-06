@@ -9,7 +9,7 @@ import { api } from "@/lib/api";
 import { useEditor } from "@/lib/editorStore";
 import { Asset } from "@/lib/jobs";
 import { CAPTION_PRESETS, PALETTES, editWord, locate, minDuration, move, newId, patchScene, remove, duplicate, splitPoint, splitText, total } from "@/lib/scene";
-import type { Scene, Word } from "@/lib/scene";
+import type { CaptionStyle, Scene, Word } from "@/lib/scene";
 
 const norm = (s: string) => s.toLowerCase().replace(/[^a-z0-9\s]/g, "").replace(/\s+/g, " ").trim();
 type VoiceOut = { audio_path: string; duration: number; words: Word[]; url: string };
@@ -217,6 +217,7 @@ export function CaptionsPanel() {
   const sc = scene.scenes[selected];
   return (
     <div className="space-y-4">
+      <BrandPicker onApply={(cap) => setC(cap, false)} />
       <div role="radiogroup" aria-label="Caption style" className="grid grid-cols-2 gap-2">
         {Object.entries(CAPTION_PRESETS).map(([k, p]) => (
           <button key={k} role="radio" aria-checked={c.name === k} onClick={() => setC({ ...p, name: k }, false)}
@@ -361,5 +362,20 @@ export function ExportPanel() {
         </details>
       )}
     </div>
+  );
+}
+
+/** Lists the user's brand kits (empty and hidden when the plan has none) and applies one to the captions. */
+function BrandPicker({ onApply }: { onApply: (c: Partial<CaptionStyle>) => void }) {
+  const [kits, setKits] = useState<{ id: string; name: string; caption: Record<string, unknown> }[]>([]);
+  useEffect(() => { api<typeof kits>("/brand-kits").then(setKits).catch(() => {}); }, []);
+  if (!kits.length) return null;
+  return (
+    <label className="block text-sm font-medium">Brand kit
+      <select className="input mt-1" defaultValue="" onChange={(e) => { const k = kits.find((x) => x.id === e.target.value); if (k) onApply(k.caption as Partial<CaptionStyle>); e.target.value = ""; }}>
+        <option value="">Apply a brand kit…</option>
+        {kits.map((k) => <option key={k.id} value={k.id}>{k.name}</option>)}
+      </select>
+    </label>
   );
 }
