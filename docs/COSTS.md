@@ -23,6 +23,10 @@ Status: **measured so far on one machine only** (Windows 10, Intel i5-6300U, 4 t
 | Real 12.3 s video, 2 scenes, voice + alignment + render | 65 s end to end |
 | Real 8.6 s video through the API | completed, 837 KB file |
 | Golden render test (2 scenes, 3.9 s) | about 4 s |
+| Whisper `tiny` transcription of 78 s of speech | about 20 s (about 4x real time) |
+| Face sampling over a 30 s clip (40 samples at 1280 px) | about 15 s |
+| Face-tracked, captioned export of a 30 s clip to 1080x1920 | about 35 s |
+| Real Text Story (3 sentences, 8 s video), end to end in the UI | about 47 s including Kokoro load |
 
 Rule of thumb on this hardware: rendering takes roughly 5x the video length. A 60-second Short should take a few minutes. A server with more cores will be faster.
 

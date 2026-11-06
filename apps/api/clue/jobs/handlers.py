@@ -7,8 +7,10 @@ from sqlalchemy.orm import Session
 from clue.core import credits
 from clue.core.db import SessionLocal
 from clue.jobs import queue
+from clue.jobs import styles
 from clue.jobs.text_story import build_project, output_path
 from clue.models import Job, Project
+from clue.core.media import MediaError
 from clue.render.compiler import RenderCancelled, render
 from clue.render.scene import CaptionStyle, SceneProject
 from clue.jobs.registry import handler
@@ -54,6 +56,27 @@ def render_text_story(db: Session, job: Job) -> dict:
     return _render_and_save(db, job, project, proj)
 
 
+@handler("render_video")
+def render_video(db: Session, job: Job) -> dict:
+    p = job.payload
+    proj = db.get(Project, p["project_id"])
+    proj.status = "rendering"
+    db.commit()
+    try:
+        project = styles.build(
+            db, job.user_id, job.id, p["style"], p["spec"], voice=p.get("voice", "af_heart"), speed=float(p.get("speed", 1.0)),
+            seed=int(p.get("seed", 0)), caption=CaptionStyle(**p.get("caption", {})), watermark=p.get("watermark"), mode=p.get("mode", "fast"),
+            music_asset_id=p.get("music_asset_id"), on_progress=lambda pct, stage: queue.progress(db, job.id, pct, stage),
+        )
+        return _render_and_save(db, job, project, proj)
+    except MediaError as e:  # e.g. over the mode's length cap: the user must shorten the script, retrying will not help
+        raise styles.SpecError(str(e)) from e
+    except Exception:
+        proj.status = "failed"
+        db.commit()
+        raise
+
+
 @handler("render_project")
 def render_project(db: Session, job: Job) -> dict:
     """Re-render a project from its saved Scene JSON (used by the editor)."""
@@ -61,6 +84,9 @@ def render_project(db: Session, job: Job) -> dict:
     proj.status = "rendering"
     db.commit()
     return _render_and_save(db, job, SceneProject.model_validate(proj.scene_json), proj)
+
+
+import clue.jobs.clip_handlers  # noqa: E402,F401  (registers transcription / auto-clip handlers)
 
 
 def recover_stale(db: Session) -> None:

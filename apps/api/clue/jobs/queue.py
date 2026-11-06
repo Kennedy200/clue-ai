@@ -44,10 +44,10 @@ def finish(db: Session, job_id: str, result: dict) -> None:
     db.commit()
 
 
-def fail(db: Session, job_id: str, error: str) -> str:
-    """Requeue if attempts remain, else mark failed. Returns the new status."""
+def fail(db: Session, job_id: str, error: str, retry: bool = True) -> str:
+    """Requeue if attempts remain (and retry is allowed), else mark failed. Returns the new status."""
     job = db.get(Job, job_id)
-    status = "queued" if job.attempts < MAX_ATTEMPTS else "failed"
+    status = "queued" if (retry and job.attempts < MAX_ATTEMPTS) else "failed"
     db.execute(update(Job).where(Job.id == job_id).values(status=status, error=error[:2000], locked_by=None))
     db.commit()
     return status

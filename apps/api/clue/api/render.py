@@ -43,6 +43,53 @@ def cost(mode: str = "fast"):
     return {"mode": mode, "credits": RENDER_COST.get(mode, 5)}
 
 
+STYLE_NAMES = ["text_story", "video_story", "commentary", "split_screen", "ranking"]
+
+
+class CreateVideo(BaseModel):
+    style: str
+    title: str = Field(default="Untitled video", max_length=200)
+    spec: dict = Field(default_factory=dict)
+    voice: str = "af_heart"
+    speed: float = Field(default=1.0, ge=0.5, le=2.0)
+    seed: int = 0
+    mode: str = "fast"
+    music_asset_id: str | None = None
+    caption: CaptionStyle = CaptionStyle()
+
+
+def _allowed_modes(u: User, db: Session) -> list[str]:
+    if get_settings().app_mode == "self_host":
+        return ["fast", "pro", "cinematic"]
+    plan = db.get(Plan, u.plan_id)
+    return (plan.features.get("modes") if plan else None) or ["fast"]
+
+
+@router.post("/render/create")
+def create_video(body: CreateVideo, u: User = Depends(current_user), db: Session = Depends(get_db)):
+    if body.style not in STYLE_NAMES:
+        raise HTTPException(422, "Unknown video style.")
+    if body.mode not in RENDER_COST:
+        raise HTTPException(422, "Unknown render mode.")
+    if body.mode not in _allowed_modes(u, db):
+        raise HTTPException(403, f"{body.mode.title()} mode is not included in your plan. Upgrade to use it.")
+    proj = Project(user_id=u.id, title=body.title.strip() or "Untitled video", style=body.style)
+    db.add(proj)
+    db.commit()
+    ref = new_id()
+    try:
+        credits.reserve(db, u.id, RENDER_COST[body.mode], f"render {body.mode}", ref_id=ref)
+    except credits.InsufficientCredits:
+        db.delete(proj)
+        db.commit()
+        raise HTTPException(402, f"Not enough credits. This costs {RENDER_COST[body.mode]}; you have {credits.balance(db, u.id)}.")
+    job = queue.enqueue(db, "render_video", {
+        "project_id": proj.id, "style": body.style, "spec": body.spec, "voice": body.voice, "speed": body.speed, "seed": body.seed,
+        "mode": body.mode, "music_asset_id": body.music_asset_id, "caption": body.caption.model_dump(), "watermark": _watermark(u, db),
+    }, user_id=u.id, credit_ref=ref)
+    return {"job_id": job.id, "project_id": proj.id, "credits": RENDER_COST[body.mode]}
+
+
 @router.post("/render/text-story")
 def create_text_story(body: TextStory, u: User = Depends(current_user), db: Session = Depends(get_db)):
     mode = "fast"
@@ -98,7 +145,7 @@ async def job_events(job_id: str, u: User = Depends(current_user), db: Session =
                 return
             await asyncio.sleep(0.7)
 
-    return StreamingResponse(gen(), media_type="text/event-stream", headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"})
+    return StreamingResponse(gen(), media_type="text/event-stream", headers={"Cache-Control": "no-cache, no-transform", "X-Accel-Buffering": "no"})
 
 
 @router.post("/jobs/{job_id}/cancel")
@@ -124,6 +171,18 @@ def download_url(pid: str, u: User = Depends(current_user), db: Session = Depend
     return {"url": f"/api/files?path={p.output_path}&t={storage.sign(p.output_path, 900)}"}
 
 
+@router.get("/files/sign")
+def sign_file(path: str, u: User = Depends(current_user)):
+    """Signed link for one of the caller's own files (outputs, uploads, clips). Other users' paths are refused."""
+    try:
+        f = storage.safe_path(path)
+    except ValueError:
+        raise HTTPException(400, "Bad path.")
+    if not path.startswith(f"{u.id}/") or not f.is_file():
+        raise HTTPException(404, "File not found.")
+    return {"url": f"/api/files?path={path}&t={storage.sign(path, 900)}"}
+
+
 @router.get("/files")
 def get_file(path: str, t: str):
     """Download via a signed, expiring link (works in a plain <a href> or <video src>)."""
@@ -135,7 +194,9 @@ def get_file(path: str, t: str):
         raise HTTPException(400, "Bad path.")
     if not f.is_file():
         raise HTTPException(404, "File not found.")
-    return FileResponse(f, media_type="video/mp4" if f.suffix == ".mp4" else None, filename=f.name)
+    import mimetypes
+
+    return FileResponse(f, media_type=mimetypes.guess_type(f.name)[0] or "application/octet-stream", filename=f.name)
 
 
 @router.get("/voices")

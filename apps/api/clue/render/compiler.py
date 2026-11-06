@@ -1,7 +1,7 @@
 """Compile a SceneProject into FFmpeg runs (argument arrays only) and render an MP4.
 
-Stages: 1) one segment per scene (visual + voice), 2) concat, 3) burn captions, watermark, loudness, final encode.
-All work happens in a per-job temp directory that is removed afterwards.
+Stages: 1) one segment per scene (visual(s) + voice, via filter_complex), 2) concat, 3) burn captions,
+watermark, music ducking, loudness, final encode. All work happens in a per-job temp dir removed afterwards.
 """
 from __future__ import annotations
 
@@ -14,7 +14,7 @@ from clue.core.media import MediaError, probe, run_ffmpeg
 from clue.core.storage import safe_path
 
 from .captions import build_ass
-from .scene import MODE_MAX_SECONDS, Scene, SceneProject
+from .scene import MODE_MAX_SECONDS, Scene, SceneProject, Visual
 
 # Brand-flavoured gradient pairs for procedural backgrounds (hex without #)
 PALETTES = [("6C4DFF", "0E0B1F"), ("0E0B1F", "C8FF3D"), ("FF5C7A", "6C4DFF"), ("0E0B1F", "6C4DFF"),
@@ -30,21 +30,56 @@ def _resolve(p: str) -> Path:
     return safe_path(p)
 
 
-def _visual_args(sc: Scene, w: int, h: int, fps: int) -> tuple[list[str], str]:
-    """Return (input args, video filter) producing a w x h stream of length sc.duration."""
-    d = f"{sc.duration:.3f}"
-    v = sc.visual
+def _visual(v: Visual, idx: int, label: str, w: int, h: int, fps: int, dur: float) -> tuple[list[str], str]:
+    """Return (input args, filtergraph piece) that turns input #idx into a w x h stream called [label]."""
+    d = f"{dur:.3f}"
     if v.kind == "image" and v.path:
-        frames = max(1, int(sc.duration * fps))
+        frames = max(1, int(dur * fps))
+        bw, bh = int(w * 1.25), int(h * 1.25)
         zoom = f"zoompan=z='min(1+0.18*on/{frames},1.18)':x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':d={frames}:s={w}x{h}:fps={fps}"
         return (["-loop", "1", "-t", d, "-i", str(_resolve(v.path))],
-                f"scale={int(w * 1.25)}:{int(h * 1.25)}:force_original_aspect_ratio=increase,crop={int(w * 1.25)}:{int(h * 1.25)},{zoom},format=yuv420p")
+                f"[{idx}:v]scale={bw}:{bh}:force_original_aspect_ratio=increase,crop={bw}:{bh},{zoom},setsar=1,format=yuv420p[{label}]")
     if v.kind == "video" and v.path:
-        return (["-stream_loop", "-1", "-t", d, "-i", str(_resolve(v.path))],
-                f"scale={w}:{h}:force_original_aspect_ratio=increase,crop={w}:{h},fps={fps},format=yuv420p")
+        pre = ["-ss", f"{v.start:.3f}"] if v.start else []
+        return ([*pre, "-stream_loop", "-1", "-t", d, "-i", str(_resolve(v.path))],
+                f"[{idx}:v]scale={w}:{h}:force_original_aspect_ratio=increase,crop={w}:{h},fps={fps},setsar=1,format=yuv420p[{label}]")
     c0, c1 = PALETTES[v.seed % len(PALETTES)]
     return (["-f", "lavfi", "-i", f"gradients=s={w}x{h}:c0=0x{c0}:c1=0x{c1}:x0=0:y0=0:x1={w}:y1={h}:speed=0.015:rate={fps}:d={d}"],
-            "format=yuv420p")
+            f"[{idx}:v]setsar=1,format=yuv420p[{label}]")
+
+
+def _segment_args(sc: Scene, project: SceneProject, seg: str) -> list[str]:
+    w, h, fps = project.width, project.height, project.fps
+    split = project.layout == "split"
+    part_h = h // 2 if split else h
+    args: list[str] = []
+    graph: list[str] = []
+    a_in, g = _visual(sc.visual, 0, "top" if split else "v", w, part_h, fps, sc.duration)
+    args += a_in
+    graph.append(g)
+    n = 1
+    if split:
+        v2 = sc.visual2 or Visual(kind="procedural", seed=sc.visual.seed + 3)
+        a2, g2 = _visual(v2, n, "bot", w, part_h, fps, sc.duration)
+        args += a2
+        graph += [g2, "[top][bot]vstack=inputs=2[v]"]
+        n += 1
+    dur = f"{sc.duration:.3f}"
+    if sc.audio_path:
+        args += ["-i", str(_resolve(sc.audio_path))]
+        graph.append(f"[{n}:a]aresample=44100,apad=whole_dur={dur}[va]")
+    else:
+        args += ["-f", "lavfi", "-t", dur, "-i", "anullsrc=r=44100:cl=mono"]
+        graph.append(f"[{n}:a]aresample=44100[va]")
+    v = sc.visual
+    if v.kind == "video" and v.path and v.has_audio and v.audio_volume:
+        # keep the source clip's own sound, quieter, underneath the voice
+        graph.append(f"[0:a]aresample=44100,volume={v.audio_volume},apad=whole_dur={dur}[sa]")
+        graph.append("[va][sa]amix=inputs=2:duration=first:normalize=0[a]")
+    else:
+        graph.append("[va]anull[a]")
+    return [*args, "-filter_complex", ";".join(graph), "-map", "[v]", "-map", "[a]", "-t", dur, "-r", str(fps),
+            "-c:v", "libx264", "-preset", "ultrafast", "-crf", "18", "-c:a", "aac", "-ar", "44100", "-ac", "2", "-b:a", "160k", seg]
 
 
 def render(project: SceneProject, out_path: Path, on_progress: Callable[[int, str], None] | None = None,
@@ -58,7 +93,6 @@ def render(project: SceneProject, out_path: Path, on_progress: Callable[[int, st
         raise MediaError("Nothing to render: the project has no scenes.")
     prog = on_progress or (lambda p, s: None)
     check = cancelled or (lambda: False)
-    w, h, fps = project.width, project.height, project.fps
     tmp = Path(tempfile.mkdtemp(prefix="clue-render-"))
     try:
         segs: list[str] = []
@@ -67,18 +101,8 @@ def render(project: SceneProject, out_path: Path, on_progress: Callable[[int, st
             if check():
                 raise RenderCancelled()
             prog(5 + int(55 * i / n), f"scene {i + 1}/{n}")
-            vin, vf = _visual_args(sc, w, h, fps)
-            args = list(vin)
-            if sc.audio_path:
-                args += ["-i", str(_resolve(sc.audio_path))]
-                af = ["-af", f"apad=whole_dur={sc.duration:.3f}"]
-            else:
-                args += ["-f", "lavfi", "-i", "anullsrc=r=44100:cl=mono"]
-                af = []
             seg = f"seg{i:03d}.mp4"
-            args += ["-vf", vf, *af, "-t", f"{sc.duration:.3f}", "-r", str(fps), "-c:v", "libx264", "-preset", "ultrafast", "-crf", "18",
-                     "-c:a", "aac", "-ar", "44100", "-ac", "2", "-b:a", "160k", seg]
-            run_ffmpeg(args, cwd=tmp)
+            run_ffmpeg(_segment_args(sc, project, seg), cwd=tmp)
             segs.append(seg)
         if check():
             raise RenderCancelled()

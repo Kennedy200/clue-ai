@@ -1,7 +1,7 @@
 """ORM models (PostgreSQL-compatible: text ULID keys, naive-UTC timestamps)."""
 from datetime import datetime
 
-from sqlalchemy import JSON, Boolean, DateTime, ForeignKey, Integer, String, Text
+from sqlalchemy import JSON, Boolean, DateTime, Float, ForeignKey, Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column
 
 from clue.core.db import Base
@@ -153,3 +153,44 @@ class Project(_Row, Base):
     scene_json: Mapped[dict | None] = mapped_column(JSON, nullable=True)
     output_path: Mapped[str | None] = mapped_column(String(300), nullable=True)
     duration: Mapped[int | None] = mapped_column(Integer, nullable=True)  # milliseconds
+
+
+class Asset(_Row, Base):
+    """A user upload or a downloaded visual, with provenance."""
+    __tablename__ = "assets"
+    user_id: Mapped[str] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
+    kind: Mapped[str] = mapped_column(String(10))  # video | image | audio
+    name: Mapped[str] = mapped_column(String(200))
+    path: Mapped[str] = mapped_column(String(300))  # relative to storage/files
+    duration: Mapped[float | None] = mapped_column(Float, nullable=True)
+    width: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    height: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    has_audio: Mapped[bool] = mapped_column(Boolean, default=False)
+    size: Mapped[int] = mapped_column(Integer, default=0)
+    provider: Mapped[str] = mapped_column(String(30), default="upload")
+    attribution: Mapped[str | None] = mapped_column(Text, nullable=True)
+
+
+class Transcript(_Row, Base):
+    __tablename__ = "transcripts"
+    user_id: Mapped[str] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
+    asset_id: Mapped[str | None] = mapped_column(String(26), nullable=True, index=True)
+    language: Mapped[str] = mapped_column(String(10), default="")
+    words: Mapped[list] = mapped_column(JSON, default=list)  # [{w,start,end}]
+    segments: Mapped[list] = mapped_column(JSON, default=list)  # [{text,start,end}]
+
+
+class Clip(_Row, Base):
+    """An auto-clip candidate with its score and reasoning."""
+    __tablename__ = "clips"
+    user_id: Mapped[str] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
+    asset_id: Mapped[str] = mapped_column(String(26), index=True)
+    transcript_id: Mapped[str] = mapped_column(String(26))
+    start: Mapped[float] = mapped_column(Float)
+    end: Mapped[float] = mapped_column(Float)
+    score: Mapped[int] = mapped_column(Integer, default=0)
+    reason: Mapped[str] = mapped_column(Text, default="")
+    title: Mapped[str] = mapped_column(String(200), default="")
+    hook: Mapped[str] = mapped_column(String(300), default="")
+    scorer: Mapped[str] = mapped_column(String(12), default="ai")  # ai | heuristic
+    output_path: Mapped[str | None] = mapped_column(String(300), nullable=True)

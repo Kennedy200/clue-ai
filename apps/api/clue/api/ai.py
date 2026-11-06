@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 from clue.ai.llm import LLMError
 from clue.ai.prompts.plan import NICHES, STYLES, TONES, VideoPlan, plan_video
 from clue.api.deps import current_user
+from clue.core import credits
 from clue.core.db import get_db
 from clue.models import User
 
@@ -30,6 +31,9 @@ def plan(body: PlanReq, u: User = Depends(current_user), db: Session = Depends(g
     if body.style not in STYLES:
         raise HTTPException(422, "Unknown style.")
     try:
-        return plan_video(db, body.idea, style=body.style, tone=body.tone, niche=body.niche, seconds=body.seconds, user_id=u.id)
+        with credits.spend(db, u.id, 1, "script generation"):
+            return plan_video(db, body.idea, style=body.style, tone=body.tone, niche=body.niche, seconds=body.seconds, user_id=u.id)
+    except credits.InsufficientCredits:
+        raise HTTPException(402, "Not enough credits. A script costs 1.")
     except LLMError as e:
         raise HTTPException(503, str(e))

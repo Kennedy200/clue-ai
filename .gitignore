@@ -16,3 +16,5 @@ dist/
 RUNNING.md
 .next-prod/
 .lighthouse/
+apps/web/test-results/
+apps/web/playwright-report/

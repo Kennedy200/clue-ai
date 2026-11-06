@@ -73,3 +73,30 @@ def test_signed_urls_expire_and_reject_tampering():
     assert not storage.verify("u/a.mp4", storage.sign("u/a.mp4", ttl=-5))
     with pytest.raises(ValueError):
         storage.safe_path("../secret")
+
+
+def _clip_with_tone(name="clip.mp4"):
+    d = storage.user_dir("tester", "assets")
+    run_ffmpeg(["-f", "lavfi", "-i", "testsrc=s=1280x720:d=6:r=30", "-f", "lavfi", "-i", "sine=frequency=220:duration=6", "-shortest",
+                "-c:v", "libx264", "-c:a", "aac", str(d / name)])
+    return f"tester/assets/{name}"
+
+
+def test_split_screen_badge_title_and_source_audio_mix(tmp_path):
+    a1, a2, img = _make_assets()
+    clip = _clip_with_tone()
+    proj = SceneProject(layout="split", scenes=[
+        Scene(id="s1", text="Number three", audio_path=a1, duration=2.0, badge="3", on_screen_text="Top picks",
+              visual=Visual(kind="video", path=clip, start=1.0, has_audio=True, audio_volume=0.3), visual2=Visual(kind="procedural", seed=5),
+              words=[Word(w="Number", start=0.1, end=0.6), Word(w="three", start=0.7, end=1.2)]),
+        Scene(id="s2", text="Number two", audio_path=a2, duration=1.5, badge="2",
+              visual=Visual(kind="image", path=img), words=[Word(w="Number", start=0.1, end=0.6), Word(w="two", start=0.7, end=1.2)]),
+    ])
+    info = render(proj, tmp_path / "split.mp4")
+    p = probe(tmp_path / "split.mp4")
+    v = next(s for s in p["streams"] if s["codec_type"] == "video")
+    assert (v["width"], v["height"]) == (1080, 1920)
+    assert abs(info["duration"] - 3.5) < 0.3
+    ass = build_ass(proj)
+    assert "Style: Badge" in ass and ",Badge,,0,0,0,,3" in ass and ",Title,,0,0,0,,Top picks" in ass
+    assert "Alignment" in ass and ",5,80,80,0,1" in ass  # split layout centres captions on the seam

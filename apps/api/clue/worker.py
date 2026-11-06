@@ -25,7 +25,8 @@ def run_once(worker_id: str) -> bool:
             queue.finish(db, job.id, result)
         except Exception as e:  # noqa: BLE001
             log.error("job %s failed: %s", job.id, traceback.format_exc())
-            status = queue.fail(db, job.id, f"{e.__class__.__name__}: {e}")
+            msg = str(e) if getattr(e, "retryable", True) is False else f"{e.__class__.__name__}: {e}"
+            status = queue.fail(db, job.id, msg, retry=getattr(e, "retryable", True))
             if status == "failed" and job.credit_ref and job.user_id:
                 credits.refund(db, job.user_id, job.credit_ref)
         return True

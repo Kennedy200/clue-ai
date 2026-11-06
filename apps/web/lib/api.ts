@@ -1,5 +1,6 @@
 /** Same-origin API client. Sends the CSRF token on every state-changing call. */
 let csrf = "";
+export const csrfToken = () => csrf;
 
 export class ApiError extends Error {
   constructor(public status: number, message: string) {

@@ -19,6 +19,9 @@ class Visual(BaseModel):
     path: str | None = None  # file inside storage for image/video
     seed: int = 0  # picks the procedural palette
     attribution: str | None = None
+    start: float = Field(default=0.0, ge=0)  # offset into a video file, seconds
+    has_audio: bool = False  # the source file has an audio stream
+    audio_volume: float | None = Field(default=None, ge=0, le=1)  # mix the source audio under the voice (None = mute it)
 
 
 class Scene(BaseModel):
@@ -28,7 +31,9 @@ class Scene(BaseModel):
     duration: float = Field(gt=0)  # seconds; derived from the audio
     words: list[Word] = []
     visual: Visual = Visual()
+    visual2: Visual | None = None  # bottom half when layout == "split"
     on_screen_text: str | None = None
+    badge: str | None = None  # e.g. the rank number in a countdown
     transition: Literal["cut", "fade"] = "cut"
 
 
@@ -48,6 +53,7 @@ class SceneProject(BaseModel):
     height: int = 1920
     fps: int = 30
     mode: Literal["fast", "pro", "cinematic"] = "fast"
+    layout: Literal["full", "split"] = "full"
     scenes: list[Scene]
     captions: CaptionStyle = CaptionStyle()
     watermark: str | None = None  # e.g. "Made with Clue AI" on free hosted plans

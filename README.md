@@ -3,7 +3,7 @@
 Open-source tool that turns scripts, ideas and long videos into captioned vertical shorts with AI voiceover.
 Runs on your own laptop with one free key (OpenRouter). Not affiliated with any other product.
 
-> **Status: early development (Phase 3 of 8).** Accounts, the marketing site, the job queue, credits, local voice (Kokoro), word-synced captions
+> **Status: early development (Phase 4 of 8).** Accounts, the marketing site, the job queue, credits, local voice (Kokoro), word-synced captions
 > and the FFmpeg renderer work through the API (Text Story). The web UI for creating videos, the other styles and the editor are not built yet.
 > See [docs/PLAN.md](docs/PLAN.md).
 

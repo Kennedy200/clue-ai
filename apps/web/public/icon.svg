@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Clue AI">
+  <rect width="64" height="64" rx="16" fill="#6C4DFF"/>
+  <path d="M24 17.5v29a2 2 0 0 0 3 1.7l22-14.5a2 2 0 0 0 0-3.4L27 15.8a2 2 0 0 0-3 1.7z" fill="#FAF8F3"/>
+  <circle cx="33" cy="30" r="7.2" fill="#6C4DFF"/>
+  <circle cx="33" cy="30" r="4.3" fill="none" stroke="#FAF8F3" stroke-width="1.8"/>
+  <path d="M38.2 35.2l5.3 5.3" stroke="#6C4DFF" stroke-width="3.4" stroke-linecap="round"/>
+  <circle cx="31.6" cy="28.6" r="1.7" fill="#C8FF3D"/>
+</svg>

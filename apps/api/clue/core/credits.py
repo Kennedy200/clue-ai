@@ -49,3 +49,21 @@ def settle(db: Session, user_id: str, ref_id: str) -> None:
     if _open_reservation(db, ref_id) is not None:
         db.add(CreditLedger(user_id=user_id, delta=0, kind="settle", reason="settled", ref_id=ref_id))
         db.commit()
+
+
+from contextlib import contextmanager  # noqa: E402
+
+from clue.core.ids import new_id  # noqa: E402
+
+
+@contextmanager
+def spend(db: Session, user_id: str, amount: int, reason: str):
+    """Charge for a synchronous action: reserve, settle on success, refund if the body raises."""
+    ref = new_id()
+    reserve(db, user_id, amount, reason, ref)
+    try:
+        yield
+    except BaseException:
+        refund(db, user_id, ref)
+        raise
+    settle(db, user_id, ref)
