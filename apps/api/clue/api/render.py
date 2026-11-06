@@ -178,7 +178,8 @@ def sign_file(path: str, u: User = Depends(current_user)):
         f = storage.safe_path(path)
     except ValueError:
         raise HTTPException(400, "Bad path.")
-    if not path.startswith(f"{u.id}/") or not f.is_file():
+    shared_cache = path.startswith("cache/assets/")  # public licensed or AI images downloaded for anyone's videos
+    if not (path.startswith(f"{u.id}/") or shared_cache) or not f.is_file():
         raise HTTPException(404, "File not found.")
     return {"url": f"/api/files?path={path}&t={storage.sign(path, 900)}"}
 

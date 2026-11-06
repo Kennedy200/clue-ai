@@ -78,7 +78,13 @@ def _segment_args(sc: Scene, project: SceneProject, seg: str) -> list[str]:
         graph.append("[va][sa]amix=inputs=2:duration=first:normalize=0[a]")
     else:
         graph.append("[va]anull[a]")
-    return [*args, "-filter_complex", ";".join(graph), "-map", "[v]", "-map", "[a]", "-t", dur, "-r", str(fps),
+    vlabel, alabel = "[v]", "[a]"
+    if sc.transition == "fade":  # dip through black at both ends of the scene
+        f = min(0.3, sc.duration / 3)
+        graph.append(f"[v]fade=t=in:st=0:d={f:.2f},fade=t=out:st={sc.duration - f:.3f}:d={f:.2f}[vf]")
+        graph.append(f"[a]afade=t=in:st=0:d=0.12,afade=t=out:st={max(0.0, sc.duration - 0.15):.3f}:d=0.15[af]")
+        vlabel, alabel = "[vf]", "[af]"
+    return [*args, "-filter_complex", ";".join(graph), "-map", vlabel, "-map", alabel, "-t", dur, "-r", str(fps),
             "-c:v", "libx264", "-preset", "ultrafast", "-crf", "18", "-c:a", "aac", "-ar", "44100", "-ac", "2", "-b:a", "160k", seg]
 
 
@@ -113,7 +119,10 @@ def render(project: SceneProject, out_path: Path, on_progress: Callable[[int, st
         (tmp / "captions.ass").write_text(build_ass(project), encoding="utf-8")
         # Relative filenames + cwd avoid Windows drive-letter escaping problems in filter strings.
         final_args = ["-i", "joined.mp4"]
-        vfilter = "ass=captions.ass"
+        grade = ""
+        if project.mode == "cinematic":  # colour grade, soft vignette and fine film grain under the captions
+            grade = "eq=contrast=1.08:saturation=1.12:gamma=0.97,vignette=PI/5,noise=alls=7:allf=t,"
+        vfilter = f"{grade}ass=captions.ass"
         if project.music_path:
             final_args += ["-stream_loop", "-1", "-i", str(_resolve(project.music_path))]
             afilter = (f"[1:a]volume={project.music_volume}[m];[m][0:a]sidechaincompress=threshold=0.05:ratio=8:attack=20:release=400[duck];"

@@ -100,3 +100,33 @@ def test_split_screen_badge_title_and_source_audio_mix(tmp_path):
     ass = build_ass(proj)
     assert "Style: Badge" in ass and ",Badge,,0,0,0,,3" in ass and ",Title,,0,0,0,,Top picks" in ass
     assert "Alignment" in ass and ",5,80,80,0,1" in ass  # split layout centres captions on the seam
+
+
+def test_caption_presets_render_in_every_mode(tmp_path):
+    from clue.render.caption_styles import PRESETS, preset
+    a1, a2, img = _make_assets()
+    assert len(PRESETS) >= 8
+    for name in PRESETS:
+        ass = build_ass(_project(a1, a2, img, captions=preset(name), mode="pro"))
+        assert "Style: Main" in ass
+    box = build_ass(_project(a1, a2, img, captions=preset("yellow-box")))
+    assert ",3,14,0," in box  # BorderStyle 3 draws a box
+    up = build_ass(_project(a1, a2, img, captions=preset("pop-single"), mode="pro"))
+    bs = chr(92)  # a literal backslash; ASS override tags start with it
+    assert "HELLO" in up and f"{bs}fscx82" in up and f"{bs}t(0,110" in up  # uppercase + pop animation as real ASS tags
+    assert "\x0c" not in up and "\t" not in up  # and never as form-feed/tab control characters
+    fast = build_ass(_project(a1, a2, img, captions=preset("pop-single"), mode="fast"))
+    assert f"{bs}fscx82" not in fast  # animation is a Pro/Cinematic feature
+
+
+def test_pro_fade_and_cinematic_grade_render_valid_video(tmp_path):
+    a1, a2, img = _make_assets()
+    proj = _project(a1, a2, img, mode="cinematic")
+    proj.scenes[0].transition = "fade"
+    out = tmp_path / "cin.mp4"
+    info = render(proj, out)
+    p = probe(out)
+    assert any(s["codec_type"] == "audio" for s in p["streams"]) and abs(info["duration"] - 3.9) < 0.3
+    plain = tmp_path / "plain.mp4"
+    render(_project(a1, a2, img, mode="fast"), plain)
+    assert out.stat().st_size > plain.stat().st_size  # film grain adds real detail/bitrate

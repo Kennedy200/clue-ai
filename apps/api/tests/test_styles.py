@@ -178,3 +178,18 @@ def test_asset_ownership_enforced(client, db, tmp_path):
     h2 = _auth(client, "thief@example.com")
     jid, _, j = run_job(client, h2, {"style": "commentary", "spec": {"clip_asset_id": clip["id"], "lines": ["Mine now."]}})
     assert j["status"] == "failed" and "not found" in j["error"]
+
+
+def test_browser_recorded_webm_without_duration_gets_one(client, db, tmp_path):
+    """MediaRecorder output (used by 'Save data') has no duration header; the library must still know the length."""
+    import subprocess
+
+    from clue.core.media import ffmpeg_bin
+
+    h = _auth(client)
+    raw = subprocess.run([ffmpeg_bin(), "-v", "error", "-f", "lavfi", "-i", "testsrc=s=640x360:d=3:r=25", "-f", "lavfi", "-i", "sine=duration=3",
+                          "-c:v", "libvpx", "-b:v", "500k", "-c:a", "libopus", "-f", "webm", "pipe:1"], capture_output=True, check=True).stdout
+    f = tmp_path / "rec.webm"
+    f.write_bytes(raw)
+    a = upload(client, h, f)
+    assert a["kind"] == "video" and a["has_audio"] and 2.5 < a["duration"] < 3.6

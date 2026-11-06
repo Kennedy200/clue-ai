@@ -1,4 +1,5 @@
 "use client";
+import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { api } from "@/lib/api";
 import { FormError } from "./AuthShell";
@@ -17,7 +18,7 @@ const COST: Record<string, number> = { fast: 5, pro: 8, cinematic: 14 };
 type Voice = { id: string; name: string; gender: string; language: string };
 type Plan = { title: string; hook: string; scenes: { text: string; visual_keywords: string[]; on_screen_text?: string | null }[] };
 
-function VoicePicker({ voice, setVoice }: { voice: string; setVoice: (v: string) => void }) {
+export function VoicePicker({ voice, setVoice }: { voice: string; setVoice: (v: string) => void }) {
   const [voices, setVoices] = useState<Voice[]>([]);
   const [err, setErr] = useState("");
   const audio = useRef<HTMLAudioElement>(null);
@@ -99,7 +100,12 @@ export function CreateForm({ style }: { style: string }) {
       <div>
         <h1 className="text-2xl font-bold">Making your video</h1>
         <p className="mb-4 text-sm text-muted">You can leave this page. Find the video later under Videos.</p>
-        <JobView jobId={job.job_id}>{() => <VideoResult projectId={job.project_id} />}</JobView>
+        <JobView jobId={job.job_id}>{() => (
+          <div>
+            <VideoResult projectId={job.project_id} />
+            <Link href={`/app/editor/${job.project_id}`} className="btn btn-ghost mx-auto mt-3 flex w-full max-w-xs">Edit this video</Link>
+          </div>
+        )}</JobView>
       </div>
     );
 

@@ -26,6 +26,8 @@ jobs:
         working-directory: apps/web
       - run: npx tsc --noEmit
         working-directory: apps/web
+      - run: npm test
+        working-directory: apps/web
   secrets:
     runs-on: ubuntu-latest
     steps:

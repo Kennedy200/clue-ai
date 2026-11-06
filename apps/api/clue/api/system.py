@@ -91,5 +91,28 @@ def dev_mail(db: Session = Depends(get_db)):
 
 
 @router.get("/plugins")
-def plugins(u: User = Depends(current_user)):
-    return discover()
+def plugins(u: User = Depends(current_user), db: Session = Depends(get_db)):
+    """Installed plugins with their on/off state (stored in the settings table under the manifest's `setting` key)."""
+    out = discover()
+    for m in out:
+        if m.get("setting"):
+            m["enabled"] = get_setting(db, m["setting"]) == "1"
+    return out
+
+
+class Toggle(BaseModel):
+    enabled: bool
+
+
+@router.post("/admin/plugins/{kind}/{name}")
+def toggle_plugin(kind: str, name: str, body: Toggle, u: User = Depends(current_user), db: Session = Depends(get_db)):
+    if not u.is_admin:
+        raise HTTPException(403, "Admins only.")
+    m = next((p for p in discover() if p.get("valid") and p["kind"] == kind and p["name"] == name), None)
+    if m is None or not m.get("setting"):
+        raise HTTPException(404, "That plugin cannot be switched on or off.")
+    set_setting(db, m["setting"], "1" if body.enabled else "0")
+    from clue.ai.tts import reset_edge_cache
+
+    reset_edge_cache()
+    return {"ok": True, "enabled": body.enabled}

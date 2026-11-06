@@ -40,12 +40,17 @@ class Scene(BaseModel):
 class CaptionStyle(BaseModel):
     name: str = "bold-highlight"
     font: str = "Arial"
-    size: int = 84
+    size: int = Field(default=84, ge=30, le=160)
     color: str = "FFFFFF"  # RRGGBB
     highlight: str = "C8FF3D"
     outline: str = "000000"
     position: Literal["middle", "lower"] = "lower"
     words_per_chunk: int = Field(default=4, ge=1, le=8)
+    box: bool = False  # draw a solid box (in the outline colour) behind the text
+    uppercase: bool = False
+    outline_width: int = Field(default=7, ge=0, le=16)
+    animate: Literal["none", "pop"] = "none"  # "pop" is applied in Pro and Cinematic modes
+    highlight_mode: Literal["colour", "none"] = "colour"
 
 
 class SceneProject(BaseModel):

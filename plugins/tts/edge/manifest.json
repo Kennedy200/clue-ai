@@ -1,0 +1,10 @@
+{
+  "name": "edge",
+  "kind": "tts",
+  "version": "0.1.0",
+  "title": "Online voices (edge-tts), including Nigerian English",
+  "description": "Adds Nigerian, Kenyan, South African, French, Spanish, Portuguese and Arabic voices. Needs internet. Uses an unofficial client: fine for personal use; use an Azure Speech plugin for commercial products. Prompts and text are sent to Microsoft's voice service.",
+  "enabled_by_default": false,
+  "setting": "tts_edge_enabled",
+  "config": []
+}

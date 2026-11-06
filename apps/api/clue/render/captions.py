@@ -30,17 +30,17 @@ def build_ass(project: SceneProject) -> str:
     margin_v = 0 if middle else 560
     align = 5 if middle else 2
     lines = [
-        "[Script Info]", "ScriptType: v4.00+", f"PlayResX: {project.width}", f"PlayResY: {project.height}", "WrapStyle: 2", "",
+        "[Script Info]", "ScriptType: v4.00+", f"PlayResX: {project.width}", f"PlayResY: {project.height}", "WrapStyle: 0", "",
         "[V4+ Styles]",
         "Format: Name,Fontname,Fontsize,PrimaryColour,SecondaryColour,OutlineColour,BackColour,Bold,Italic,Underline,StrikeOut,ScaleX,ScaleY,Spacing,Angle,BorderStyle,Outline,Shadow,Alignment,MarginL,MarginR,MarginV,Encoding",
-        f"Style: Main,{_clean(st.font) or 'Arial'},{st.size},&H00{_bgr(st.color)},&H00{_bgr(st.highlight)},&H00{_bgr(st.outline)},&H80000000,-1,0,0,0,100,100,0,0,1,7,2,{align},80,80,{margin_v},1",
+        f"Style: Main,{_clean(st.font) or 'Arial'},{st.size},&H00{_bgr(st.color)},&H00{_bgr(st.highlight)},&H00{_bgr(st.outline)},&H00{_bgr(st.outline)},-1,0,0,0,100,100,0,0,{3 if st.box else 1},{st.outline_width},{0 if st.box else 2},{align},80,80,{margin_v},1",
         f"Style: Title,Arial,64,&H00FFFFFF,&H00FFFFFF,&H00{_bgr(st.outline)},&HA0000000,-1,0,0,0,100,100,0,0,3,14,0,8,70,70,170,1",
         f"Style: Badge,Arial,190,&H00{_bgr(st.highlight)},&H00FFFFFF,&H00000000,&H00000000,-1,0,0,0,100,100,0,0,1,10,3,7,60,0,150,1",
         "Style: Mark,Arial,34,&H99FFFFFF,&H00FFFFFF,&H99000000,&H00000000,0,0,0,0,100,100,0,0,1,2,0,9,0,30,40,1",
         "",
         "[Events]", "Format: Layer,Start,End,Style,Name,MarginL,MarginR,MarginV,Effect,Text",
     ]
-    hi = f"{{\\c&H{_bgr(st.highlight)}&}}"
+    hi = f"{{\\c&H{_bgr(st.highlight if st.highlight_mode == 'colour' else st.color)}&}}"
     base = f"{{\\c&H{_bgr(st.color)}&}}"
     offset = 0.0
     for sc in project.scenes:
@@ -50,7 +50,10 @@ def build_ass(project: SceneProject) -> str:
             for j, (_, ws, _we) in enumerate(chunk):
                 end = chunk[j + 1][1] if j + 1 < len(chunk) else chunk[-1][2]
                 end = max(end, ws + 0.05)
-                text = " ".join((hi if k == j else base) + cw[0] for k, cw in enumerate(chunk))
+                word_text = (lambda w: w.upper()) if st.uppercase else (lambda w: w)
+                text = " ".join((hi if k == j else base) + word_text(cw[0]) for k, cw in enumerate(chunk))
+                if st.animate == "pop" and project.mode != "fast":
+                    text = "{\\fscx82\\fscy82\\t(0,110,\\fscx100\\fscy100)}" + text
                 lines.append(f"Dialogue: 0,{_ts(ws)},{_ts(end)},Main,,0,0,0,,{text}")
         if sc.on_screen_text and _clean(sc.on_screen_text):
             lines.append(f"Dialogue: 1,{_ts(offset)},{_ts(offset + sc.duration)},Title,,0,0,0,,{_clean(sc.on_screen_text)}")

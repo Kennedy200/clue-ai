@@ -19,3 +19,15 @@ Kinds: `llm`, `tts`, `asset`, `payment`, `email`, `storage`, `publisher`, `capti
 Invalid manifests are listed with their error and never stop the app. See `plugins/email/smtp` for an example.
 
 Phase status: discovery and listing work now. Loading plugin code and the enable/disable UI arrive with the features that use each kind.
+
+## Shipped plugins
+
+| Plugin | Kind | Default | What it adds |
+|---|---|---|---|
+| `tts/piper` | tts | off | 11 local neural voices: UK and US English, French, Spanish, Portuguese (BR), Arabic, Swahili. Each downloads once (about 60 MB). Piper is MIT; **each voice has its own licence**, so check its model card before commercial use. |
+| `tts/edge` | tts | off | Online voices, including Nigerian English (`en-NG-AbeoNeural`, `en-NG-EzinneNeural`), Kenyan, South African, French, Spanish, Portuguese, Arabic. Needs internet and sends text to Microsoft's voice service through an unofficial client: personal and evaluation use only; use an Azure Speech plugin for commercial products. |
+| `email/smtp` | email | off | Manifest only; sending is not implemented yet. |
+
+Turn a plugin on or off as admin: `POST /api/admin/plugins/<kind>/<name>` with `{"enabled": true}`. The state is stored in the `settings` table under the manifest's `setting` key. Plugin voices appear in every voice picker with an id prefix (`piper:`, `edge:`).
+
+To add a voice engine: implement `TTSProvider` (`voices()`, `synthesize()`) in `apps/api/clue/ai/tts.py`, register it in `Router`, add a manifest with a `setting`.

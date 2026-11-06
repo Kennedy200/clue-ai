@@ -28,6 +28,10 @@ Status: **measured so far on one machine only** (Windows 10, Intel i5-6300U, 4 t
 | Face-tracked, captioned export of a 30 s clip to 1080x1920 | about 35 s |
 | Real Text Story (3 sentences, 8 s video), end to end in the UI | about 47 s including Kokoro load |
 
+| Whisper `small` on a 10.4-minute source | 460 s (1.35x real time) on the i5-6300U; plugged in |
+| Re-voicing one scene with Kokoro | a few seconds |
+| Cinematic render of a short edited video, end to end in the editor | about 1 minute (laptop on charger) |
+
 Rule of thumb on this hardware: rendering takes roughly 5x the video length. A 60-second Short should take a few minutes. A server with more cores will be faster.
 
 ## Margin per plan

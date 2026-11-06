@@ -26,6 +26,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   }, [r]);
   useEffect(() => { refresh().catch(() => r.replace("/login")); }, [refresh, r]);
   if (!me) return <main className="p-10 text-muted" aria-busy="true">Loading…</main>;
+  const inEditor = path.startsWith("/app/editor");
   const unlimited = me.mode === "self_host";
   const active = (h: string) => (h === "/app" ? path === "/app" : path.startsWith(h.split("/").slice(0, 3).join("/")));
   return (
@@ -44,14 +45,14 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           </div>
         </div>
       </header>
-      <div className="mx-auto max-w-5xl px-4 pb-28 pt-6 sm:pb-10">{children}</div>
-      <nav aria-label="Main mobile" className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-5 border-t border-line bg-card sm:hidden">
+      <div className={`mx-auto max-w-5xl px-4 pt-6 ${inEditor ? "pb-6" : "pb-28 sm:pb-10"}`}>{children}</div>
+      {!inEditor && <nav aria-label="Main mobile" className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-5 border-t border-line bg-card sm:hidden">
         {NAV.map(([h, t, ico]) => (
           <Link key={h} href={h} className={`flex min-h-14 flex-col items-center justify-center text-xs ${active(h) ? "font-bold text-violet" : "text-muted"}`}>
             <span aria-hidden className="text-lg leading-none">{ico}</span>{t}
           </Link>
         ))}
-      </nav>
+      </nav>}
     </MeCtx.Provider>
   );
 }

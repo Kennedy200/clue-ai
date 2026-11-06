@@ -24,7 +24,15 @@ function Inner() {
               <span><b>{p.title}</b><span className="ml-2 text-xs text-muted">{p.style.replace("_", " ")} · {new Date(p.created_at).toLocaleDateString()}</span></span>
               <span className="font-mono text-xs">{p.status === "done" && p.duration_ms ? fmtTime(p.duration_ms / 1000) : p.status}</span>
             </button>
-            {open === p.id && p.status === "done" && <div className="mt-4"><VideoResult projectId={p.id} /></div>}
+            {open === p.id && p.status === "done" && (
+              <div className="mt-4">
+                <VideoResult projectId={p.id} />
+                <div className="mt-3 flex justify-center gap-2">
+                  <Link href={`/app/editor/${p.id}`} className="btn btn-primary">Edit this video</Link>
+                  <button className="btn btn-ghost" onClick={async () => { if (confirm("Delete this video? This cannot be undone.")) { await api(`/projects/${p.id}`, { method: "DELETE" }); setRows((r) => (r ?? []).filter((x) => x.id !== p.id)); } }}>Delete</button>
+                </div>
+              </div>
+            )}
             {open === p.id && p.status !== "done" && <p className="mt-3 text-sm text-muted">This video is not ready ({p.status}).</p>}
           </li>
         ))}

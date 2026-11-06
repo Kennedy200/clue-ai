@@ -1,5 +1,6 @@
 /** Job progress (SSE with polling fallback) and resumable chunked uploads. */
 import { api, ApiError, csrfToken } from "./api";
+import { shrinkVideo } from "./compress";
 
 export type Job = {
   id: string; type: string; status: "queued" | "running" | "done" | "failed" | "cancelled";
@@ -57,7 +58,10 @@ export type Asset = {
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 /** Upload a file in chunks. Each chunk retries with backoff; a dropped connection resumes from the server's offset. */
-export async function uploadFile(file: File, onProgress: (pct: number) => void, signal?: { cancelled: boolean }): Promise<Asset> {
+export async function uploadFile(file: File, onProgress: (pct: number, phase?: "shrinking" | "uploading") => void, signal?: { cancelled: boolean }, opts?: { shrink?: boolean }): Promise<Asset> {
+  if (opts?.shrink) {
+    try { file = await shrinkVideo(file, (p) => onProgress(p, "shrinking")); } catch { /* upload the original */ }
+  }
   const init = await api<{ id: string; chunk_size: number }>("/uploads/init", { body: { name: file.name, size: file.size } });
   let offset = 0;
   const chunk = Math.min(init.chunk_size, 2 * 1024 * 1024); // smaller chunks survive flaky mobile data
@@ -79,7 +83,7 @@ export async function uploadFile(file: File, onProgress: (pct: number) => void, 
       }
     }
     if (!ok) throw new ApiError(0, "The connection keeps dropping. Your upload is saved; try again to resume.");
-    onProgress(Math.round((offset / file.size) * 100));
+    onProgress(Math.round((offset / file.size) * 100), "uploading");
   }
   return api<Asset>(`/uploads/${init.id}/finish`, { method: "POST", body: {} });
 }

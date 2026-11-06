@@ -137,10 +137,18 @@ def finish(upload_id: str, u: User = Depends(current_user), db: Session = Depend
         run_ffmpeg(["-i", str(part), "-map_metadata", "-1", "-map", "0", "-c", "copy", str(dest)], timeout=1800)
     except MediaError:
         shutil.copyfile(part, dest)  # some containers cannot be stream-copied; keep the file as is
+    try:  # browser-recorded WebM has no duration in its header; the remux above writes one, so read it again
+        dur = float(probe(dest)["format"].get("duration") or 0) or dur
+    except MediaError:
+        pass
     a = Asset(id=aid, user_id=u.id, kind=kind, name=m["name"], path=rel, duration=dur, width=int(vs[0]["width"]) if vs else None,
               height=int(vs[0]["height"]) if vs else None, has_audio=bool(au), size=dest.stat().st_size)
     db.add(a)
     db.commit()
+    if kind == "video":  # 480p preview copy for the editor, made in the background
+        from clue.jobs import queue
+
+        queue.enqueue(db, "make_proxy", {"asset_id": a.id}, user_id=u.id)
     _cleanup(upload_id)
     return _view(a)
 
@@ -174,4 +182,5 @@ def media_url(asset_id: str, u: User = Depends(current_user), db: Session = Depe
     a = db.get(Asset, asset_id)
     if a is None or a.user_id != u.id:
         raise HTTPException(404, "Media not found.")
-    return {"url": f"/api/files?path={a.path}&t={storage.sign(a.path, 900)}"}
+    use = a.proxy_path if a.proxy_path and (storage.root() / a.proxy_path).is_file() else a.path  # prefer the light 480p copy
+    return {"url": f"/api/files?path={use}&t={storage.sign(use, 900)}", "path": a.path}

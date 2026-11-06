@@ -153,6 +153,7 @@ class Project(_Row, Base):
     scene_json: Mapped[dict | None] = mapped_column(JSON, nullable=True)
     output_path: Mapped[str | None] = mapped_column(String(300), nullable=True)
     duration: Mapped[int | None] = mapped_column(Integer, nullable=True)  # milliseconds
+    version: Mapped[int] = mapped_column(Integer, default=0)  # bumped on every saved edit (conflict detection)
 
 
 class Asset(_Row, Base):
@@ -169,6 +170,7 @@ class Asset(_Row, Base):
     size: Mapped[int] = mapped_column(Integer, default=0)
     provider: Mapped[str] = mapped_column(String(30), default="upload")
     attribution: Mapped[str | None] = mapped_column(Text, nullable=True)
+    proxy_path: Mapped[str | None] = mapped_column(String(300), nullable=True)  # 480p preview copy for the editor
 
 
 class Transcript(_Row, Base):
@@ -194,3 +196,11 @@ class Clip(_Row, Base):
     hook: Mapped[str] = mapped_column(String(300), default="")
     scorer: Mapped[str] = mapped_column(String(12), default="ai")  # ai | heuristic
     output_path: Mapped[str | None] = mapped_column(String(300), nullable=True)
+
+
+class ProjectVersion(_Row, Base):
+    """Autosave history: a snapshot of the Scene JSON before each overwrite."""
+    __tablename__ = "project_versions"
+    project_id: Mapped[str] = mapped_column(ForeignKey("projects.id", ondelete="CASCADE"), index=True)
+    version: Mapped[int] = mapped_column(Integer)
+    scene_json: Mapped[dict] = mapped_column(JSON)

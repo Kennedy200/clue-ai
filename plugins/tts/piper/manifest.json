@@ -1,0 +1,10 @@
+{
+  "name": "piper",
+  "kind": "tts",
+  "version": "0.1.0",
+  "title": "Piper local voices (UK English, French, Spanish, Portuguese, Arabic, Swahili)",
+  "description": "More voices that run on this computer with no account. Each voice downloads once (about 60 MB) the first time you use it. Piper is MIT licensed, but every voice has its own licence in its model card, so check it before commercial use.",
+  "enabled_by_default": false,
+  "setting": "tts_piper_enabled",
+  "config": []
+}
