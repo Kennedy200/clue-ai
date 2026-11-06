@@ -18,6 +18,12 @@ from clue.models import AuditLog, CreditLedger, EmailToken, Plan, User
 from clue.models import Session as SessionRow
 
 router = APIRouter(prefix="/auth", tags=["auth"])
+
+if get_settings().app_mode == "self_host":  # allow @clue.local style addresses on a private install
+    import email_validator
+
+    if "local" in email_validator.SPECIAL_USE_DOMAIN_NAMES:
+        email_validator.SPECIAL_USE_DOMAIN_NAMES.remove("local")
 SESSION_DAYS = 30
 SELF_HOST_CREDITS = 1_000_000
 
@@ -30,8 +36,9 @@ class Signup(BaseModel):
 
 
 class Login(BaseModel):
-    email: EmailStr
-    password: str
+    # Plain string on purpose: seeded local accounts (admin@clue.local) must be able to sign in.
+    email: str = Field(min_length=3, max_length=255)
+    password: str = Field(min_length=1, max_length=128)
 
 
 def _public(u: User, db: Session) -> dict:

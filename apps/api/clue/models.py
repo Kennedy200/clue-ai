@@ -142,3 +142,14 @@ class Review(_Row, Base):
     rating: Mapped[int] = mapped_column(Integer)
     body: Mapped[str] = mapped_column(Text)
     approved: Mapped[bool] = mapped_column(Boolean, default=False)
+
+
+class Project(_Row, Base):
+    __tablename__ = "projects"
+    user_id: Mapped[str] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
+    title: Mapped[str] = mapped_column(String(200), default="Untitled")
+    style: Mapped[str] = mapped_column(String(30), default="text_story")
+    status: Mapped[str] = mapped_column(String(12), default="draft")  # draft|rendering|done|failed
+    scene_json: Mapped[dict | None] = mapped_column(JSON, nullable=True)
+    output_path: Mapped[str | None] = mapped_column(String(300), nullable=True)
+    duration: Mapped[int | None] = mapped_column(Integer, nullable=True)  # milliseconds

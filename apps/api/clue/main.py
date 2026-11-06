@@ -4,7 +4,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from clue.api import auth, public, system
+from clue.api import ai, auth, public, render, system
 from clue.core.config import get_settings
 from clue.core.db import SessionLocal
 from clue.seed import ensure_reference_data
@@ -25,3 +25,5 @@ app.add_middleware(
 app.include_router(system.router, prefix="/api")
 app.include_router(auth.router, prefix="/api")
 app.include_router(public.router, prefix="/api")
+app.include_router(render.router, prefix="/api")
+app.include_router(ai.router, prefix="/api")

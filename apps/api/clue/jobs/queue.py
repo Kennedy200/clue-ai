@@ -19,7 +19,7 @@ def claim(db: Session, worker_id: str, types: list[str] | None = None) -> Job | 
     """Atomically claim the highest-priority, oldest queued job."""
     for _ in range(5):
         q = select(Job.id).where(Job.status == "queued")
-        if types:
+        if types is not None:
             q = q.where(Job.type.in_(types))
         jid = db.scalar(q.order_by(Job.priority.desc(), Job.id).limit(1))
         if jid is None:

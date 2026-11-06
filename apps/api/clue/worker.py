@@ -1,23 +1,17 @@
 """Worker process: polls the DB queue and runs registered handlers."""
 import logging
 import os
+import sys
 import time
 import traceback
 from collections.abc import Callable
 
+from clue.core import credits
 from clue.core.db import SessionLocal
 from clue.jobs import queue
+from clue.jobs.registry import HANDLERS, handler  # noqa: F401  (re-exported)
 
 log = logging.getLogger("clue.worker")
-HANDLERS: dict[str, Callable] = {}
-
-
-def handler(job_type: str):
-    """Register a job handler: fn(db, job) -> result dict."""
-    def deco(fn):
-        HANDLERS[job_type] = fn
-        return fn
-    return deco
 
 
 def run_once(worker_id: str) -> bool:
@@ -31,12 +25,22 @@ def run_once(worker_id: str) -> bool:
             queue.finish(db, job.id, result)
         except Exception as e:  # noqa: BLE001
             log.error("job %s failed: %s", job.id, traceback.format_exc())
-            queue.fail(db, job.id, f"{e.__class__.__name__}: {e}")
+            status = queue.fail(db, job.id, f"{e.__class__.__name__}: {e}")
+            if status == "failed" and job.credit_ref and job.user_id:
+                credits.refund(db, job.user_id, job.credit_ref)
         return True
 
 
 def main() -> None:
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(name)s %(message)s")
+    import clue.jobs.handlers as handlers  # noqa: F401  (registers job handlers)
+
+    if "--check" in sys.argv:
+        print("handlers:", ",".join(sorted(HANDLERS)))
+        return
+
+    with SessionLocal() as db:
+        handlers.recover_stale(db)
     wid = f"w{os.getpid()}"
     log.info("worker %s started", wid)
     while True:

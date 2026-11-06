@@ -26,6 +26,9 @@ const ff = findFfmpeg();
 if (ff) console.log(`FFmpeg found: ${ff}`);
 else console.log("FFmpeg is missing. Install it, then reopen your terminal:\n  winget install Gyan.FFmpeg   (Windows)\n  brew install ffmpeg          (macOS)\n  sudo apt install ffmpeg      (Linux)");
 
+step("Downloading the local voice model (about 120 MB, resumable)");
+if (!run(venvPy, ["-m", "clue.core.models_dl"], { cwd: API_DIR })) console.log("Voice model download did not finish. Run `npm run setup` again; it resumes where it stopped.");
+
 step("Creating .env");
 const env = path.join(ROOT, ".env");
 if (!existsSync(env)) { copyFileSync(path.join(ROOT, ".env.example"), env); console.log("Created .env (edit it or use /setup in the app)."); }

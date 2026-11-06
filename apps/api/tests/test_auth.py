@@ -75,3 +75,13 @@ def test_referral_credits(client):
     client.cookies.clear()
     r = client.post("/api/auth/login", json={"email": "ref@example.com", "password": "password123"}).json()
     assert r["credits"] == 25
+
+
+def test_seeded_local_accounts_can_sign_in(client, db):
+    from clue.seed import seed_demo
+    from clue.core.security import hash_password
+    from clue.models import User
+    db.add(User(email="demo@clue.local", password_hash=hash_password("secret-pass-1"), email_verified=True))
+    db.commit()
+    r = client.post("/api/auth/login", json={"email": "Demo@Clue.local", "password": "secret-pass-1"})
+    assert r.status_code == 200, r.text
