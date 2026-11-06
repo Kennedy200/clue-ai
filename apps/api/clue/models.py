@@ -198,6 +198,38 @@ class Clip(_Row, Base):
     output_path: Mapped[str | None] = mapped_column(String(300), nullable=True)
 
 
+class Subscription(_Row, Base):
+    """One row per user. status: active | past_due | cancelled. Cancel/downgrade take effect at period end."""
+    __tablename__ = "subscriptions"
+    user_id: Mapped[str] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), unique=True, index=True)
+    plan_id: Mapped[str] = mapped_column(String(40))
+    interval: Mapped[str] = mapped_column(String(8), default="month")  # month | year
+    currency: Mapped[str] = mapped_column(String(3), default="NGN")
+    status: Mapped[str] = mapped_column(String(12), default="active")
+    period_start: Mapped[datetime] = mapped_column(DateTime, default=utcnow)
+    period_end: Mapped[datetime] = mapped_column(DateTime, default=utcnow)
+    cancel_at_period_end: Mapped[bool] = mapped_column(Boolean, default=False)
+    pending_plan_id: Mapped[str | None] = mapped_column(String(40), nullable=True)
+    pending_interval: Mapped[str | None] = mapped_column(String(8), nullable=True)
+    failed_attempts: Mapped[int] = mapped_column(Integer, default=0)
+    next_retry_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+
+
+class Invoice(_Row, Base):
+    """Immutable record of a charge. amount is in minor units (kobo / cents). status: paid | failed | void."""
+    __tablename__ = "invoices"
+    number: Mapped[str] = mapped_column(String(24), unique=True, index=True)
+    user_id: Mapped[str] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
+    kind: Mapped[str] = mapped_column(String(16))  # subscription | upgrade | topup
+    description: Mapped[str] = mapped_column(String(200))
+    amount: Mapped[int] = mapped_column(Integer)
+    currency: Mapped[str] = mapped_column(String(3))
+    status: Mapped[str] = mapped_column(String(8), default="paid")
+    lines: Mapped[list] = mapped_column(JSON, default=list)
+    idem_key: Mapped[str | None] = mapped_column(String(64), nullable=True, unique=True)
+    paid_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+
+
 class ProjectVersion(_Row, Base):
     """Autosave history: a snapshot of the Scene JSON before each overwrite."""
     __tablename__ = "project_versions"

@@ -14,6 +14,10 @@ export default function ToolsHub() {
             <p className="mt-1 text-sm text-muted">{t.blurb}</p>
           </Link>
         ))}
+        <Link href="/app/score" className="card p-4 transition-transform hover:-translate-y-0.5">
+          <div className="flex items-start justify-between gap-2"><h2 className="font-semibold">Clue Score</h2><span className="shrink-0 rounded-full bg-lime px-2 py-0.5 text-xs">Free</span></div>
+          <p className="mt-1 text-sm text-muted">Score your script out of 100, see exactly what to fix, fix your hook, and share a Clue Card.</p>
+        </Link>
       </div>
     </div>
   );

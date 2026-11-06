@@ -59,3 +59,7 @@ See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md). Plugins live in `plugins/<kind
 ## License
 
 MIT. See [LICENSE](LICENSE).
+
+## Billing, referrals and Clue Score
+
+Billing is built in and simulated (no real money moves). Open `/app/billing` to change plan, top up, view invoices and copy your invite link. `/app/score` scores a script for free. To take real payments, add a gateway plugin (see docs/PLUGINS.md). To test a declined card, set `prefs.sim_decline` on a user.

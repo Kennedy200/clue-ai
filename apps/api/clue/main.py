@@ -4,7 +4,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from clue.api import ai, auth, creative, editor, public, render, system, tools, uploads
+from clue.api import ai, auth, creative, editor, money, public, render, system, tools, uploads
 from clue.core.config import get_settings
 from clue.core.db import SessionLocal
 from clue.seed import ensure_reference_data
@@ -31,3 +31,4 @@ app.include_router(uploads.router, prefix="/api")
 app.include_router(tools.router, prefix="/api")
 app.include_router(creative.router, prefix="/api")
 app.include_router(editor.router, prefix="/api")
+app.include_router(money.router, prefix="/api")

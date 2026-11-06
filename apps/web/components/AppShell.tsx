@@ -40,7 +40,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             ))}
           </nav>
           <div className="flex items-center gap-2">
-            <span className="rounded-full bg-lime px-3 py-1 font-mono text-xs font-bold text-ink" title="Your credits">{unlimited ? "∞ credits" : `${me.credits} credits`}</span>
+            <Link href="/app/billing" className="rounded-full bg-lime px-3 py-1 font-mono text-xs font-bold text-ink" title="Credits and billing">{unlimited ? "∞ credits" : `${me.credits} credits`}</Link>
             <button className="btn btn-ghost !min-h-9 !px-3 text-sm" onClick={async () => { await logout(); r.push("/"); }}>Sign out</button>
           </div>
         </div>

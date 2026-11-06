@@ -29,7 +29,7 @@ Source of truth: the owner's master build prompt (sections 0–16). This file tr
 - [x] **Phase 3 – Core pipeline** (verified; see report): queue, storage, LLM wrapper + prompts, TTS, STT, asset providers, Scene JSON, FFmpeg renderer (Fast), SSE.
 - [x] **Phase 4 – Styles + tools** (built and e2e-tested; AI-dependent paths still unverified against OpenRouter, see Phase 5 report): 6 styles, standalone tools, Auto Clipping.
 - [x] **Phase 5 – Editor**: preview, timeline, panels, captions, autosave, mobile layout, Pro/Cinematic.
-- [ ] **Phase 6 – Money**: ledger, plans, internal billing, invoices, referrals, Clue Score + Clue Card.
+- [x] **Phase 6 – Money**: ledger, plans, internal billing, invoices, referrals, Clue Score + Clue Card.
 - [ ] **Phase 7 – Teams, brand kits, bulk, YouTube publish, analytics, admin, xlsx.**
 - [ ] **Phase 8 – Hardening**: security, perf, a11y, backups, runbook, COSTS with measured numbers, e2e.
 
@@ -112,3 +112,11 @@ Limits to know: free-plan upload cap 200 MB; the e2e suite needs the models and 
 
 **Not done / limits:** Cinematic light-leak transitions and SFX hits are not built; no built-in music library (your own uploads only) and the preview does not play music (the render does); the preview is a DOM approximation of the FFmpeg render (fonts, wrapping and zoom easing can differ slightly); proxies exist only for uploaded videos; brand-kit panel arrives with Phase 7; shrinking needs a foreground tab (browsers throttle hidden tabs) and Chrome-family MediaRecorder; Whisper `small` needs about 7.7 minutes for a 10-minute video on this CPU.
 **Tests:** 81 backend, 11 web unit (scene ops, undo/redo, merging, conflict, offline retry), 20 Playwright e2e files/tests on real Chrome (desktop 1280 and phone 360 touch).
+
+### Phase 6 report (2026-11-06)
+
+**Built:** `core/billing.py` internal billing engine (simulated gateway, `Gateway` is the swap point for a real-gateway plugin). Subscribe monthly or yearly (yearly = 6x monthly = 50% off, 12 months of credits granted up front), NGN or USD. Upgrades are charged now minus the unused part of the current period; downgrades and cancels apply at period end (user keeps plan and credits until then). Failed renewals retry after 1, 3 and 5 days with dev-mail notices, then the account drops to Free. One-off top-up packs (100/300/1000) with an idempotency key so a double click cannot charge twice. Numbered invoices (`CLUE-YYYY-NNNNNN`, failed attempts recorded too), printable invoice page, receipt emails to the dev inbox, credit history from the append-only ledger. The worker runs renewals every 5 minutes. Referral link prefills signup; both sides get 10 credits (saas mode only). **Clue Score**: local, explainable 0-100 (hook 30, pacing 25, clarity 20, specifics 15, CTA 10) with tips, free, no key. **Fix my hook**: AI rewrite (1 credit) when a key exists, otherwise free templates; a failed AI attempt is refunded. **Clue Card**: 1080x1350 PNG with score ring, bars and your invite link.
+
+**Verified:** 95 backend tests (14 new: proration, annual price, downgrade at period end, cancel then free, declined card changes nothing, retry schedule and drop to Free, idempotent top-up, ledger sums, referral both sides, invoice ownership, score ordering, card is a 1080x1350 PNG); Playwright on desktop and 360 px phone: upgrade, top-up, invoice page, cancel, referral prefill, score, fix hook, card download.
+
+**Not verified / limits:** no real payment gateway (nothing here moves money; the pricing and billing pages say so). AI "Fix my hook" path untested against OpenRouter. Subscription periods are 30/365 days, not calendar months. The Clue Score is a heuristic, not a prediction of views. Referral rewards are not yet held back until the friend verifies their email (abuse risk, to harden in Phase 8). Currency conversion is fixed prices per currency, not live rates.

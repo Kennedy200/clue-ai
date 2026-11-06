@@ -44,7 +44,17 @@ def main() -> None:
         handlers.recover_stale(db)
     wid = f"w{os.getpid()}"
     log.info("worker %s started", wid)
+    last_bill = 0.0
     while True:
+        if time.time() - last_bill > 300:  # subscription renewals and payment retries
+            last_bill = time.time()
+            try:
+                from clue.core import billing
+
+                with SessionLocal() as db:
+                    billing.renew_due(db)
+            except Exception:  # noqa: BLE001
+                log.error("billing run failed: %s", traceback.format_exc())
         if not run_once(wid):
             time.sleep(1.0)
 
