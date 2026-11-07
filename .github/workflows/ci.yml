@@ -12,6 +12,8 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+      - name: Install FFmpeg and fonts (the render tests need them)
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends ffmpeg fonts-liberation fonts-dejavu-core
       - run: pip install -r apps/api/requirements.txt
       - run: python -m pytest -q
         working-directory: apps/api
