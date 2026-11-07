@@ -8,6 +8,7 @@
 Turn an idea, a script or a long video into a captioned vertical short with an AI voiceover.
 No camera. No editing skills. Runs on your own laptop.
 
+[![CI](https://github.com/Kennedy200/clue-ai/actions/workflows/ci.yml/badge.svg)](https://github.com/Kennedy200/clue-ai/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-6C4DFF.svg)](LICENSE)
 ![Runs offline](https://img.shields.io/badge/works%20with-no%20API%20key-C8FF3D?labelColor=0E0B1F)
 ![Python](https://img.shields.io/badge/python-3.12-3776AB?logo=python&logoColor=white)
