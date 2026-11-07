@@ -28,6 +28,7 @@ class Settings(BaseSettings):
     smtp_password: str = ""
     smtp_from: str = ""
     smtp_starttls: bool = True
+    whisper_model: str = "small"  # tiny (75 MB, fastest) | base | small (default, 460 MB, best accuracy)
     trust_proxy: bool = True  # read the client IP from X-Forwarded-For (the API is only reachable through our own proxy)
 
     @property

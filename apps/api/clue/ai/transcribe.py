@@ -16,7 +16,9 @@ _models: dict[str, object] = {}
 
 
 def whisper_size() -> str:
-    return os.environ.get("WHISPER_MODEL", "small")
+    from clue.core.config import get_settings
+
+    return os.environ.get("WHISPER_MODEL") or get_settings().whisper_model  # env var wins, then .env, then the default
 
 
 def _model(size: str):
