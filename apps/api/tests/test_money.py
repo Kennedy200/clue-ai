@@ -141,6 +141,8 @@ def test_referrals_reward_both_sides(client, db):
     client.cookies.clear()
     r = client.post("/api/auth/signup", json={"email": "b@example.com", "password": "password123", "referral_code": code})
     assert r.status_code == 200
+    from tests.test_auth import verify_email
+    assert verify_email(client, db, "b@example.com").status_code == 200
     client.cookies.clear()
     client.post("/api/auth/login", json={"email": "a@example.com", "password": "password123"})
     info = client.get("/api/referrals").json()

@@ -12,7 +12,13 @@ export async function signup(page: Page, tag = "u") {
   await page.getByLabel("Email").fill(email);
   await page.getByLabel(/^Password/).fill("password-e2e-123");
   await page.getByRole("button", { name: "Create account" }).click();
-  await expect(page.getByRole("heading", { name: /^Hi, E2E Tester/ })).toBeVisible({ timeout: 30_000 });
+  const hi = page.getByRole("heading", { name: /^Hi, E2E Tester/ });
+  // signup is limited to 5 per minute per visitor; every test here is the same visitor, so wait out the limit once
+  if (!(await hi.isVisible({ timeout: 15_000 }).catch(() => false)) && (await page.getByText(/Too many attempts/).isVisible().catch(() => false))) {
+    await page.waitForTimeout(61_000);
+    await page.getByRole("button", { name: "Create account" }).click();
+  }
+  await expect(hi).toBeVisible({ timeout: 30_000 });
   return email;
 }
 

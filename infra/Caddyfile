@@ -1,0 +1,21 @@
+# Caddy gets and renews the HTTPS certificate by itself. DOMAIN comes from the compose environment.
+{$DOMAIN} {
+	encode zstd gzip
+
+	# The web container serves the site and proxies /api to the API container.
+	reverse_proxy web:3000 {
+		# SSE job progress must not be buffered
+		flush_interval -1
+		header_up X-Forwarded-For {remote_host}
+	}
+
+	# Large uploads go through in chunks, but allow generous bodies for the finishing call
+	request_body {
+		max_size 100MB
+	}
+
+	log {
+		output stdout
+		format console
+	}
+}

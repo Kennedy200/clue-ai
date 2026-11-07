@@ -7,9 +7,20 @@ from fastapi import HTTPException, Request
 _hits: dict[str, deque] = defaultdict(deque)
 
 
+def client_ip(request: Request) -> str:
+    """Behind Caddy/Next every connection comes from the proxy, so use the forwarded client address.
+    The API must only be reachable through the proxy (it binds to 127.0.0.1 in the Docker files)."""
+    from clue.core.config import get_settings
+
+    fwd = request.headers.get("x-forwarded-for", "")
+    if get_settings().trust_proxy and fwd:
+        return fwd.split(",")[0].strip()[:45]
+    return request.client.host if request.client else "x"
+
+
 def limit(bucket: str, max_calls: int, per_seconds: int):
     def dep(request: Request):
-        key = f"{bucket}:{request.client.host if request.client else 'x'}"
+        key = f"{bucket}:{client_ip(request)}"
         now = time.time()
         q = _hits[key]
         while q and now - q[0] > per_seconds:

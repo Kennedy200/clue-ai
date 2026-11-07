@@ -22,6 +22,13 @@ class Settings(BaseSettings):
     admin_email: str = "admin@clue.local"
     feature_url_import: bool = False
     database_url: str = ""
+    smtp_host: str = ""  # set to send real email (see docs/RUNBOOK.md)
+    smtp_port: int = 587
+    smtp_user: str = ""
+    smtp_password: str = ""
+    smtp_from: str = ""
+    smtp_starttls: bool = True
+    trust_proxy: bool = True  # read the client IP from X-Forwarded-For (the API is only reachable through our own proxy)
 
     @property
     def storage_dir(self) -> Path:

@@ -1,0 +1,58 @@
+# Production-style stack: Caddy (HTTPS) -> web (Next.js) -> api, plus a worker. Only Caddy is reachable from the internet.
+#   cp infra/.env.production.example .env   (edit it)   then:   docker compose -f infra/docker-compose.yml --env-file .env up -d --build
+name: clue
+services:
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    ports: ["80:80", "443:443"]
+    environment:
+      DOMAIN: ${DOMAIN:?set DOMAIN in .env}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on: [web]
+
+  web:
+    build:
+      context: ..
+      dockerfile: infra/Dockerfile.web
+      args:
+        SITE_URL: https://${DOMAIN}
+    restart: unless-stopped
+    depends_on: [api]
+    expose: ["3000"]
+
+  api:
+    build:
+      context: ..
+      dockerfile: infra/Dockerfile.api
+    restart: unless-stopped
+    command: ["api"]
+    env_file: ../.env
+    environment:
+      APP_MODE: ${APP_MODE:-saas}
+      SITE_URL: https://${DOMAIN}
+      STORAGE_PATH: /data
+    volumes: [clue_data:/data]
+    expose: ["8000"]
+
+  worker:
+    build:
+      context: ..
+      dockerfile: infra/Dockerfile.api
+    restart: unless-stopped
+    command: ["worker"]
+    env_file: ../.env
+    environment:
+      APP_MODE: ${APP_MODE:-saas}
+      SITE_URL: https://${DOMAIN}
+      STORAGE_PATH: /data
+    volumes: [clue_data:/data]
+    depends_on: [api]
+
+volumes:
+  clue_data:
+  caddy_data:
+  caddy_config:

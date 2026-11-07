@@ -67,11 +67,24 @@ def test_delete_account_and_export(client, db):
     assert db.scalar(select(User)) is None
 
 
-def test_referral_credits(client):
+def verify_email(client, db, email):
+    import re
+
+    from sqlalchemy import select
+
+    from clue.models import DevMail
+    m = db.scalars(select(DevMail).where(DevMail.to == email, DevMail.subject.like("Verify%"))).all()[-1]
+    return client.post("/api/auth/verify", json={"token": re.search(r"token=(\S+)", m.body).group(1)})
+
+
+def test_referral_credits_arrive_only_after_the_friend_verifies(client, db):
     a = signup(client, "ref@example.com")
     client.cookies.clear()
     b = signup(client, "new@example.com", referral_code=a["referral_code"])
-    assert b["credits"] == 25  # 15 free + 10 referral
+    assert b["credits"] == 15  # nothing yet: a fake address would otherwise farm credits
+    assert verify_email(client, db, "new@example.com").status_code == 200
+    assert client.get("/api/auth/me").json()["credits"] == 25  # 15 free + 10 referral
+    assert verify_email(client, db, "new@example.com").status_code == 400  # a replayed link cannot pay twice
     client.cookies.clear()
     r = client.post("/api/auth/login", json={"email": "ref@example.com", "password": "password123"}).json()
     assert r["credits"] == 25

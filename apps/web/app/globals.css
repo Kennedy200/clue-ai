@@ -58,3 +58,15 @@ h1, h2, h3 { font-family: var(--font-display); letter-spacing: -0.02em; }
 .prose-clue ul, .prose-clue ol { margin: 1rem 0; padding-left: 1.4rem; }
 .prose-clue ul { list-style: disc; } .prose-clue ol { list-style: decimal; }
 .prose-clue li { margin: .35rem 0; }
+
+/* Animated numbers without JavaScript: a registered integer property counts up to --to and is drawn through a counter. */
+@property --n { syntax: "<integer>"; initial-value: 0; inherits: false; }
+.count-up { --n: var(--to, 0); counter-reset: n var(--n); animation: count-up 1.4s ease-out both; animation-delay: var(--delay, 0s); }
+.count-up::after { content: counter(n); }
+@keyframes count-up { from { --n: 0; } to { --n: var(--to, 0); } }
+.fade-up { animation: fade-up .5s ease-out both; animation-delay: var(--delay, 0s); }
+@keyframes fade-up { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+.scan-line { animation: scan 2.4s linear both; }
+@keyframes scan { from { left: 0; } to { left: 100%; } }
+.ring { transition: none; animation: ring 1.2s ease-out both; }
+@keyframes ring { from { stroke-dashoffset: 283; } }

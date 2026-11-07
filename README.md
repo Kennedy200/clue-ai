@@ -3,9 +3,10 @@
 Open-source tool that turns scripts, ideas and long videos into captioned vertical shorts with AI voiceover.
 Runs on your own laptop with one free key (OpenRouter). Not affiliated with any other product.
 
-> **Status: early development (Phase 5 of 8).** Accounts, the marketing site, the job queue, credits, local voice (Kokoro), word-synced captions
-> and the FFmpeg renderer work through the API (Text Story). The web UI for creating videos, the other styles and the editor are not built yet.
-> See [docs/PLAN.md](docs/PLAN.md).
+> **Status: feature complete for a first public release (v1.0 candidate).** Six video styles, Auto Clipping, the editor, billing (simulated),
+> teams, brand kits, bulk, calendar, admin panel and Excel import/export all run and are tested. What is **not** verified is listed in
+> [Honest limits](#honest-limits): AI features have never run against a real OpenRouter key, YouTube upload has never run against real Google,
+> and the Docker deployment files have never been run. See [docs/PLAN.md](docs/PLAN.md).
 
 ## Quick start (Windows, macOS, Linux)
 
@@ -46,14 +47,24 @@ npm test
 npm run scan   # secret scan, run before every push
 ```
 
+## Deploy to a server (about 30 to 45 minutes)
+
+A rented Linux server, a domain and Docker are all you need: `git clone`, copy `infra/.env.production.example` to `.env`, then `docker compose -f infra/docker-compose.yml --env-file .env up -d --build`. Caddy gets the HTTPS certificate by itself. Step by step, with backups, restore and troubleshooting: [docs/RUNBOOK.md](docs/RUNBOOK.md). Security notes and known gaps: [SECURITY.md](SECURITY.md). Costs and margins: [docs/COSTS.md](docs/COSTS.md).
+
+Back up before every update: `python -m clue.backup create`. Restore: `python -m clue.backup restore <archive>`.
+
 ## Layout
 
 See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md). Plugins live in `plugins/<kind>/<name>/manifest.json`.
 
 ## Honest limits
 
+- The AI features (ideas, script planner, title score, enhancer, Fix my hook, AI clip scoring) were tested with fake providers only. Run `npm run verify:llm` after saving your key.
+- YouTube upload was tested against a mock of Google, not the real service.
+- Lighthouse mobile performance for Home and Pricing measured 87 and 87 (median of three) on a slow laptop; accessibility 100. Not yet 90.
 - Free OpenRouter models allow roughly 20 requests/minute and 50/day on an account that never bought credits.
 - Payments are simulated by the built-in billing engine until you add a gateway plugin.
+- The Docker/Caddy files have not been run on a real server by the author; the runbook says what to expect.
 - Legal pages are templates: review with a lawyer before launch.
 
 ## License

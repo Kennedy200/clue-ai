@@ -3,10 +3,10 @@ from datetime import timedelta
 
 from fastapi import APIRouter, Depends, HTTPException, Request, Response
 from pydantic import BaseModel, EmailStr, Field
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
-from clue.api.deps import COOKIE, current_user
+from clue.api.deps import COOKIE, current_user, get_session
 from clue.core import credits
 from clue.core.config import get_settings
 from clue.core.db import get_db
@@ -72,8 +72,8 @@ def signup(body: Signup, response: Response, db: Session = Depends(get_db)):
     if db.scalar(select(User.id).where(User.email == email)):
         raise HTTPException(409, "That email already has an account. Try signing in.")
     u = User(email=email, password_hash=hash_password(body.password), name=body.name.strip())
-    if email == s.admin_email.lower():
-        u.is_admin = True
+    if email == s.admin_email.lower() and s.app_mode == "self_host":
+        u.is_admin = True  # on a hosted install the admin must prove they own the address first (see /verify)
     ref = db.scalar(select(User).where(User.referral_code == body.referral_code)) if body.referral_code else None
     if ref:
         u.referred_by = ref.id
@@ -82,9 +82,6 @@ def signup(body: Signup, response: Response, db: Session = Depends(get_db)):
     plan = db.get(Plan, "free")
     grant = SELF_HOST_CREDITS if s.app_mode == "self_host" else (plan.monthly_credits if plan else 15)
     credits.grant(db, u.id, grant, "signup grant")
-    if ref and s.app_mode == "saas":
-        credits.grant(db, u.id, 10, "referral bonus", ref_id=f"ref:{u.id}")
-        credits.grant(db, ref.id, 10, "referral reward", ref_id=f"refr:{u.id}")
     tok = _issue_token(db, u, "verify", 48)
     send_mail(db, u.email, "Verify your Clue AI email", f"Welcome to Clue AI!\n\nVerify your email: {s.site_url}/verify?token={tok}")
     _start_session(db, u, response)
@@ -140,6 +137,20 @@ def _consume(db: Session, raw: str, kind: str) -> User:
     return db.get(User, t.user_id)
 
 
+REFERRAL_REWARD, REFERRAL_CAP = 10, 50
+
+
+def _reward_referral(db: Session, u: User) -> None:
+    """Pay both sides once, only after the friend proved they own their email, and at most REFERRAL_CAP times per referrer."""
+    if not u.referred_by or get_settings().app_mode != "saas" or db.scalar(select(CreditLedger.id).where(CreditLedger.ref_id == f"ref:{u.id}")):
+        return
+    done = db.scalar(select(func.count()).select_from(CreditLedger).where(CreditLedger.user_id == u.referred_by, CreditLedger.reason == "referral reward")) or 0
+    if done >= REFERRAL_CAP:
+        return
+    credits.grant(db, u.id, REFERRAL_REWARD, "referral bonus", ref_id=f"ref:{u.id}")
+    credits.grant(db, u.referred_by, REFERRAL_REWARD, "referral reward", ref_id=f"refr:{u.id}")
+
+
 class TokenBody(BaseModel):
     token: str
 
@@ -148,7 +159,10 @@ class TokenBody(BaseModel):
 def verify(body: TokenBody, db: Session = Depends(get_db)):
     u = _consume(db, body.token, "verify")
     u.email_verified = True
+    if u.email == get_settings().admin_email.lower():
+        u.is_admin = True
     db.commit()
+    _reward_referral(db, u)
     return {"ok": True}
 
 
@@ -187,10 +201,13 @@ class ChangePw(BaseModel):
 
 
 @router.post("/change-password")
-def change_password(body: ChangePw, u: User = Depends(current_user), db: Session = Depends(get_db)):
+def change_password(body: ChangePw, u: User = Depends(current_user), cur: SessionRow | None = Depends(get_session), db: Session = Depends(get_db)):
     if not verify_password(u.password_hash, body.current):
         raise HTTPException(400, "Current password is wrong.")
     u.password_hash = hash_password(body.new)
+    for other in db.scalars(select(SessionRow).where(SessionRow.user_id == u.id)).all():
+        if cur is None or other.id != cur.id:
+            db.delete(other)  # sign out every other device
     db.commit()
     return {"ok": True}
 

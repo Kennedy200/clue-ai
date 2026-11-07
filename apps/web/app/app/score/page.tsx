@@ -42,7 +42,11 @@ export default function ScorePage() {
       {res && (
         <section aria-label="Score result" className="card mt-6 p-5">
           <div className="flex items-center gap-4">
-            <div className="grid h-24 w-24 place-items-center rounded-full bg-ink text-white"><span className="font-display text-4xl font-bold" data-testid="score">{res.score}</span></div>
+            <div className="relative grid h-24 w-24 place-items-center rounded-full bg-ink text-white">
+              <svg viewBox="0 0 100 100" className="absolute inset-0 -rotate-90" aria-hidden><circle cx="50" cy="50" r="45" fill="none" stroke="#2a2250" strokeWidth="8" /><circle key={res.score} className="ring" cx="50" cy="50" r="45" fill="none" stroke={res.score >= 70 ? "#c8ff3d" : res.score >= 45 ? "#ffbe50" : "#ff5c7a"} strokeWidth="8" strokeLinecap="round" strokeDasharray="283" strokeDashoffset={283 - (283 * res.score) / 100} /></svg>
+              <span key={`n${res.score}`} className="count-up relative font-display text-4xl font-bold" style={{ ["--to" as string]: res.score }} aria-hidden />
+              <span className="sr-only" data-testid="score">{res.score}</span>
+            </div>
             <div><p className="text-xl font-bold">Grade {res.grade}</p><p className="text-sm text-muted">{res.words} words · about {res.est_seconds} seconds</p></div>
           </div>
           <ul className="mt-4 space-y-2">

@@ -1,0 +1,25 @@
+# Clue AI web image (Next.js). Build from the repo root:  docker build -f infra/Dockerfile.web -t clue-web .
+FROM node:22-alpine AS build
+WORKDIR /app/apps/web
+COPY apps/web/package.json apps/web/package-lock.json ./
+RUN npm ci --no-audit --no-fund
+COPY apps/web ./
+COPY content /app/content
+# The API address is baked into the proxy rewrite at build time. In compose the API service is called "api".
+ARG API_HOST=api
+ARG API_PORT=8000
+ARG SITE_URL=http://localhost
+ENV API_HOST=$API_HOST API_PORT=$API_PORT SITE_URL=$SITE_URL NEXT_OUTPUT=standalone NEXT_TELEMETRY_DISABLED=1
+RUN npm run build
+
+FROM node:22-alpine
+ENV NODE_ENV=production NEXT_TELEMETRY_DISABLED=1 PORT=3000 HOSTNAME=0.0.0.0
+WORKDIR /app
+COPY --from=build /app/apps/web/.next/standalone ./
+COPY --from=build /app/apps/web/.next/static ./apps/web/.next/static
+COPY --from=build /app/apps/web/public ./apps/web/public
+COPY --from=build /app/content /app/content
+RUN adduser -D clue && chown -R clue /app
+USER clue
+EXPOSE 3000
+CMD ["node", "apps/web/server.js"]

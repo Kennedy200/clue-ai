@@ -31,7 +31,7 @@ Source of truth: the owner's master build prompt (sections 0–16). This file tr
 - [x] **Phase 5 – Editor**: preview, timeline, panels, captions, autosave, mobile layout, Pro/Cinematic.
 - [x] **Phase 6 – Money**: ledger, plans, internal billing, invoices, referrals, Clue Score + Clue Card.
 - [x] **Phase 7 – Teams, brand kits, bulk, YouTube publish, analytics, admin, xlsx.**
-- [ ] **Phase 8 – Hardening**: security, perf, a11y, backups, runbook, COSTS with measured numbers, e2e.
+- [x] **Phase 8 – Hardening**: security, perf, a11y, backups, runbook, COSTS with measured numbers, e2e.
 
 ## 4. Task breakdown per role (Phase 1 focus)
 
@@ -130,3 +130,15 @@ Limits to know: free-plan upload cap 200 MB; the e2e suite needs the models and 
 **Verified:** 12 new backend tests (roles and permission edges, plan gates, brand kit ownership, bulk atomicity, calendar ownership, publish pack, analytics, YouTube OAuth + upload against a mocked Google, admin permissions, dashboard numbers, xlsx export/injection, xlsx import dry-run/apply/rollback); Playwright on desktop and 360 px phone: invite and join as a second browser user, brand kit, bulk with a bad row blocked then success, calendar, analytics, admin credits and audit.
 
 **NOT verified / limits:** YouTube upload has never run against real Google (no OAuth client here; tested against a mock only), so expect first-contact fixes (consent screen verification, quota). Teams do not co-edit. No per-seat billing. Team pricing is the Business plan only. The calendar reminds nothing (no push or email reminders), it is a planner. Fonts in brand kits depend on the fonts installed where FFmpeg renders. Analytics cover this app's data only, not views from platforms. Bulk is text stories only (not other styles). The signup rate limit (5 per minute per IP) can make rapid multi-user e2e runs flaky.
+
+### Phase 8 report (2026-11-07)
+
+**Security review (found by reading the code, fixed, each with a test):** anyone could become admin on a hosted install by signing up with `ADMIN_EMAIL` before verifying it; referral credits were paid before the friend verified an email (farmable) and had no cap; changing a password left other devices signed in; behind a proxy every visitor shared one rate-limit bucket (the whole site would lock after 5 signups a minute); no security headers or body-size limits. Added: CSP and friends in Next, an ASGI guard in the API (no SSE buffering), proxy-aware client IP. Dependencies: `pip-audit` clean after upgrading FastAPI/Starlette (0.41 -> 1.10), cryptography, python-multipart, pytest, and pinning the unpinned packages; the unused `zod` was removed; `npm audit` still reports PostCSS inside Next 15 (build-time, not user-reachable).
+
+**Also built:** real SMTP sending (env-configured, never breaks a request; before this a hosted install had no way to deliver verification mail), backup/restore tool (`python -m clue.backup`, consistent while running, checksums, secret included, refuses damaged or unsafe archives, never deletes existing data), credits-ledger reconciliation (finds credits held by crashed jobs, admin can return them, audit-logged), animated Clue Score (CSS only), Docker + Caddy deployment files, RUNBOOK, SECURITY checklist, measured/modelled COSTS with margin per plan in naira.
+
+**Verified:** 124 backend tests (Starlette 1.x included), 11 web unit tests, Playwright full run (26 passed, 3 failed, 19 skipped by design): 2 failures were load (one worker, 25-minute run; both pass alone in 31 s and 12 s) and 1 was a real contrast bug in the brand-kit preview (fixed, passes). WCAG 2.1 A/AA via axe on 14 public and 14 signed-in pages: clean, with zero console errors under the CSP. Backup + verify + restore on the real dev database while the app was running: table counts and ledger sum identical.
+
+**Lighthouse (production build, mobile, median of 3, slow laptop under load):** Home 87, Pricing 87 (best runs 92 and 89); accessibility 100; best practices 100; LCP 0.8 s. Not at the 90 target: remaining cost is Next/React hydration (about 700 ms scripting at 4x CPU throttle), not our code. Re-measure on a faster machine or after hosting with HTTP/2 and brotli.
+
+**NOT verified / not done:** AI features against a real OpenRouter key; YouTube against real Google; the Docker files were never run; SMTP only against a mock; restore only rehearsed on this machine; payments simulated; Lighthouse 90; no external pen test; no 2FA; Redis-backed rate limit; Cinematic light leaks and SFX; built-in music library; GitHub repo not created (needs `gh`).

@@ -307,3 +307,35 @@ def test_xlsx_import_validates_then_applies_atomically(client, db):
     assert client.post("/api/admin/import.xlsx", content=b"not a spreadsheet", headers=h).status_code == 422
     assert client.post("/api/admin/import.xlsx", content=b"", headers=h).status_code == 422
     assert db.scalar(select(AuditLog).where(AuditLog.action == "xlsx.import")) is not None
+
+
+def test_ledger_reconciliation_finds_and_fixes_stuck_reservations(client, db):
+    from datetime import timedelta
+
+    from clue.models import CreditLedger
+
+    h = mk(client, db, "root@example.com", admin=True)
+    u = db.scalar(select(User).where(User.email == "root@example.com"))
+    base = credits.balance(db, u.id)
+    assert client.get("/api/admin/reconcile").json()["ok"] is True
+    # a crash left 5 credits reserved for a job that is gone (made 2 hours ago)
+    credits.reserve(db, u.id, 5, "render fast", "lost-ref")
+    row = db.scalar(select(CreditLedger).where(CreditLedger.ref_id == "lost-ref"))
+    row.created_at = utcnow() - timedelta(hours=2)
+    # a fresh reservation (2 minutes old) must NOT be touched
+    credits.reserve(db, u.id, 3, "render fast", "fresh-ref")
+    # a reservation whose job is still running is fine
+    credits.reserve(db, u.id, 2, "render fast", "busy-ref")
+    db.scalar(select(CreditLedger).where(CreditLedger.ref_id == "busy-ref")).created_at = utcnow() - timedelta(hours=2)
+    db.add(Job(type="render_video", status="running", user_id=u.id, payload={}, credit_ref="busy-ref"))
+    db.commit()
+    r = client.get("/api/admin/reconcile").json()
+    assert [o["ref_id"] for o in r["orphan_reservations"]] == ["lost-ref"] and not r["ok"]
+    fixed = client.post("/api/admin/reconcile/fix", headers=h).json()
+    assert fixed["refunded"] == 1 and fixed["credits"] == 5 and fixed["ok"] is True
+    assert credits.balance(db, u.id) == base - 3 - 2  # only the legitimate holds remain
+    assert client.post("/api/admin/reconcile/fix", headers=h).json()["refunded"] == 0  # idempotent
+    assert db.scalar(select(AuditLog).where(AuditLog.action == "ledger.reconcile_fix"))
+    assert client.get("/api/admin/reconcile").status_code == 200
+    mk(client, db, "plain@example.com", plan="free")
+    assert client.get("/api/admin/reconcile").status_code == 403

@@ -278,3 +278,33 @@ async def import_xlsx(request: Request, apply: bool = False, a: User = Depends(a
             credits.grant(db, u.id, amt, f"admin import: {reason}")
         audit(db, a, "xlsx.import", **summary)
     return {"ok": True, "applied": apply, "errors": [], "summary": summary}
+
+
+# ---------- ledger reconciliation ----------
+def _reconcile(db: Session) -> dict:
+    """Balance is the sum of the append-only ledger by definition, so what can go wrong is: a negative balance, or
+    credits held (reserved) for work that is no longer running because of a crash. Both are reported here."""
+    negative = [{"user_id": uid, "balance": int(b)} for uid, b in db.execute(select(CreditLedger.user_id, func.sum(CreditLedger.delta)).group_by(CreditLedger.user_id).having(func.sum(CreditLedger.delta) < 0))]
+    closed = {r for (r,) in db.execute(select(CreditLedger.ref_id).where(CreditLedger.kind.in_(["settle", "refund"]), CreditLedger.ref_id.is_not(None)))}
+    live = {c for (c,) in db.execute(select(Job.credit_ref).where(Job.status.in_(["queued", "running"]), Job.credit_ref.is_not(None)))}
+    cutoff = utcnow() - timedelta(minutes=30)  # a reservation made a moment ago may simply not have its job yet
+    orphans = [{"user_id": r.user_id, "ref_id": r.ref_id, "credits": -r.delta, "reason": r.reason}
+               for r in db.scalars(select(CreditLedger).where(CreditLedger.kind == "reserve", CreditLedger.created_at < cutoff))
+               if r.ref_id not in closed and r.ref_id not in live]
+    return {"ok": not negative and not orphans, "negative_balances": negative, "orphan_reservations": orphans,
+            "users_checked": db.scalar(select(func.count(func.distinct(CreditLedger.user_id)))) or 0}
+
+
+@router.get("/reconcile")
+def reconcile(a: User = Depends(admin_user), db: Session = Depends(get_db)):
+    return _reconcile(db)
+
+
+@router.post("/reconcile/fix")
+def reconcile_fix(a: User = Depends(admin_user), db: Session = Depends(get_db)):
+    """Refund credits that are stuck in a reservation nobody is working on. Logged in the audit log."""
+    found = _reconcile(db)["orphan_reservations"]
+    for o in found:
+        credits.refund(db, o["user_id"], o["ref_id"])
+    audit(db, a, "ledger.reconcile_fix", refunded=len(found), credits=sum(o["credits"] for o in found))
+    return {"refunded": len(found), "credits": sum(o["credits"] for o in found), **_reconcile(db)}

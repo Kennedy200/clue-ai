@@ -27,6 +27,7 @@ export default function Admin() {
   const [imp, setImp] = useState<{ bytes: ArrayBuffer; res: ImportRes } | null>(null);
   const [yt, setYt] = useState({ client_id: "", client_secret: "" });
   const [key, setKey] = useState("");
+  const [rec, setRec] = useState<{ ok: boolean; negative_balances: unknown[]; orphan_reservations: { credits: number }[]; users_checked: number } | null>(null);
 
   const loadPlugins = () => api<Plugin[]>("/plugins").then(setPlugins);
   const loadUsers = useCallback((s = "") => api<UserRow[]>(`/admin/users?q=${encodeURIComponent(s)}`).then(setUsers), []);
@@ -85,6 +86,11 @@ export default function Admin() {
                 <p><b>Revenue, 30 days (simulated):</b> {money(dash.revenue_30d_minor)}</p>
                 <p className="mt-1"><b>AI cost, 30 days:</b> ${dash.llm.usd_30d} over {dash.llm.calls_30d} calls{dash.llm.usd_per_video != null && <> · about ${dash.llm.usd_per_video} per finished video</>}</p>
                 <p className="mt-1"><b>Jobs:</b> {Object.entries(dash.jobs).map(([k, v]) => `${k} ${v}`).join(" · ") || "none"} · <b>Credits in circulation:</b> {dash.credits_in_circulation}</p>
+                <div className="mt-3 flex flex-wrap items-center gap-2">
+                  <button className="btn btn-ghost !min-h-9 text-xs" onClick={() => act(async () => setRec(await api("/admin/reconcile")))}>Check the credits ledger</button>
+                  {rec && <span role="status" className="text-sm">{rec.ok ? `Ledger is consistent (${rec.users_checked} users checked).` : `${rec.negative_balances.length} negative balances, ${rec.orphan_reservations.length} stuck holds (${rec.orphan_reservations.reduce((a, b) => a + b.credits, 0)} credits).`}</span>}
+                  {rec && rec.orphan_reservations.length > 0 && <button className="btn btn-primary !min-h-9 text-xs" onClick={() => act(async () => { await api("/admin/reconcile/fix", { body: {} }); setRec(await api("/admin/reconcile")); }, "Stuck credits returned to their owners.")}>Return stuck credits</button>}
+                </div>
                 {Object.keys(dash.llm.by_feature).length > 0 && (
                   <table className="mt-3 w-full text-left"><caption className="sr-only">AI cost by feature</caption><thead><tr><th>Feature</th><th>Calls</th><th>USD</th><th>Failed</th></tr></thead>
                     <tbody>{Object.entries(dash.llm.by_feature).map(([k, v]) => <tr key={k}><td>{k}</td><td>{v.calls}</td><td>{v.usd}</td><td>{v.failed}</td></tr>)}</tbody></table>

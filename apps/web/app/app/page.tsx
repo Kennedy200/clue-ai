@@ -40,7 +40,7 @@ export default function Dashboard() {
             </Link>
           ))}
           <Link href="/app/tools/clips" className="card bg-violet p-4 text-white transition-transform hover:-translate-y-0.5" style={{ background: "var(--violet)" }}>
-            <h3 className="font-semibold">Auto Clipping</h3><p className="mt-1 text-sm opacity-90">Long video in, best short clips out.</p>
+            <h3 className="font-semibold">Auto Clipping</h3><p className="mt-1 text-sm">Long video in, best short clips out.</p>
           </Link>
         </div>
       </section>
